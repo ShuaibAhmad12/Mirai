@@ -1,5 +1,5 @@
 -- Supabase Database Schema Export
--- Generated on: Mon Sep 15 08:02:02 IST 2025
+-- Generated on: Mon Sep 15 11:54:34 IST 2025
 -- Tables ordered to avoid foreign key constraint issues
 
 -- Drop existing tables (in reverse dependency order)
@@ -9,19 +9,20 @@ DROP TABLE IF EXISTS public.fee_current_balances CASCADE;
 DROP TABLE IF EXISTS public.fee_adjustments CASCADE;
 DROP TABLE IF EXISTS public.student_enrollments CASCADE;
 DROP TABLE IF EXISTS public.fee_plan_items CASCADE;
-DROP TABLE IF EXISTS public.fee_plans CASCADE;
 DROP TABLE IF EXISTS public.fee_receipt_allocations CASCADE;
+DROP TABLE IF EXISTS public.fee_plans CASCADE;
 DROP TABLE IF EXISTS public.user_roles CASCADE;
 DROP TABLE IF EXISTS public.user_invitations CASCADE;
 DROP TABLE IF EXISTS public.student_user_profiles CASCADE;
 DROP TABLE IF EXISTS public.staff_profiles CASCADE;
 DROP TABLE IF EXISTS public.role_permissions CASCADE;
 DROP TABLE IF EXISTS public.external_user_profiles CASCADE;
+DROP TABLE IF EXISTS public.fee_receipt_balance_records CASCADE;
+DROP TABLE IF EXISTS public.fee_ledger_events CASCADE;
 DROP TABLE IF EXISTS public.agent_tags CASCADE;
 DROP TABLE IF EXISTS public.agent_notes CASCADE;
 DROP TABLE IF EXISTS public.agent_contacts CASCADE;
 DROP TABLE IF EXISTS public.courses CASCADE;
-DROP TABLE IF EXISTS public.fee_receipt_balance_records CASCADE;
 DROP TABLE IF EXISTS public.student_profiles CASCADE;
 DROP TABLE IF EXISTS public.student_prior_education CASCADE;
 DROP TABLE IF EXISTS public.student_notes CASCADE;
@@ -29,31 +30,28 @@ DROP TABLE IF EXISTS public.student_internal_refs CASCADE;
 DROP TABLE IF EXISTS public.student_identity_documents CASCADE;
 DROP TABLE IF EXISTS public.student_contacts CASCADE;
 DROP TABLE IF EXISTS public.student_addresses CASCADE;
-DROP TABLE IF EXISTS public.fee_ledger_events CASCADE;
 DROP TABLE IF EXISTS public.users CASCADE;
-DROP TABLE IF EXISTS public.agents CASCADE;
-DROP TABLE IF EXISTS public.report_templates CASCADE;
-DROP TABLE IF EXISTS public.permissions CASCADE;
-DROP TABLE IF EXISTS public.colleges CASCADE;
-DROP TABLE IF EXISTS public.system_config CASCADE;
 DROP TABLE IF EXISTS public.fee_receipts CASCADE;
+DROP TABLE IF EXISTS public.permissions CASCADE;
+DROP TABLE IF EXISTS public.report_templates CASCADE;
+DROP TABLE IF EXISTS public.roles CASCADE;
 DROP TABLE IF EXISTS public.audit_logs CASCADE;
 DROP TABLE IF EXISTS public.academic_sessions CASCADE;
-DROP TABLE IF EXISTS public.roles CASCADE;
-DROP TABLE IF EXISTS public.students CASCADE;
 DROP TABLE IF EXISTS public.fee_components CASCADE;
+DROP TABLE IF EXISTS public.agents CASCADE;
+DROP TABLE IF EXISTS public.colleges CASCADE;
+DROP TABLE IF EXISTS public.students CASCADE;
+DROP TABLE IF EXISTS public.system_config CASCADE;
 
 -- Create tables (in dependency order)
--- Table: fee_components
-CREATE TABLE public.fee_components (,
+-- Table: system_config
+CREATE TABLE public.system_config (,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
-    code text NOT NULL,
-    label text NOT NULL,
-    frequency text NOT NULL,
+    key text NOT NULL,
+    value jsonb,
     description text,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_by uuid,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
 
@@ -71,24 +69,57 @@ CREATE TABLE public.students (,
     CHECK ((status = ANY (ARRAY['active'::text, 'suspended'::text, 'withdrawn'::text, 'transferred'::text, 'deleted'::text])))
 );
 
--- Table: roles
-CREATE TABLE public.roles (,
+-- Table: colleges
+CREATE TABLE public.colleges (,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
+    legacy_id integer,
+    code text,
     name text NOT NULL,
-    display_name text NOT NULL,
-    description text,
-    level integer NOT NULL DEFAULT 0,
-    is_system_role boolean NOT NULL DEFAULT false,
-    max_users integer,
-    is_active boolean NOT NULL DEFAULT true,
-    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by uuid,
+    address text,
+    website text,
+    email text,
+    phone text,
+    affiliation text,
+    approved_by text,
+    status smallint DEFAULT 1,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_by uuid,
+    admission_number integer NOT NULL DEFAULT 10000,
+    PRIMARY KEY (id),
+    CHECK ((status = ANY (ARRAY[0, 1])))
+);
+
+-- Table: agents
+CREATE TABLE public.agents (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    legacy_id integer,
+    name text NOT NULL,
+    email_raw text,
+    email text,
+    phone_raw text,
+    phone_e164 text,
+    status smallint NOT NULL DEFAULT 1,
+    source_channel text,
+    notes text,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_by uuid,
     PRIMARY KEY (id),
-    CHECK ((length(display_name) <= 100)),
-    CHECK ((length(name) <= 50)),
-    CHECK (((level >= 0) AND (level <= 100)))
+    CHECK ((status = ANY (ARRAY[0, 1])))
+);
+
+-- Table: fee_components
+CREATE TABLE public.fee_components (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    code text NOT NULL,
+    label text NOT NULL,
+    frequency text NOT NULL,
+    description text,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_by uuid,
+    PRIMARY KEY (id)
 );
 
 -- Table: academic_sessions
@@ -120,6 +151,64 @@ CREATE TABLE public.audit_logs (,
     PRIMARY KEY (id)
 );
 
+-- Table: roles
+CREATE TABLE public.roles (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL,
+    display_name text NOT NULL,
+    description text,
+    level integer NOT NULL DEFAULT 0,
+    is_system_role boolean NOT NULL DEFAULT false,
+    max_users integer,
+    is_active boolean NOT NULL DEFAULT true,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by uuid,
+    updated_by uuid,
+    PRIMARY KEY (id),
+    CHECK ((length(display_name) <= 100)),
+    CHECK ((length(name) <= 50)),
+    CHECK (((level >= 0) AND (level <= 100)))
+);
+
+-- Table: report_templates
+CREATE TABLE public.report_templates (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL,
+    description text,
+    source_key text NOT NULL,
+    columns jsonb NOT NULL DEFAULT '[]'::jsonb,
+    filters jsonb NOT NULL DEFAULT '[]'::jsonb,
+    sort jsonb NOT NULL DEFAULT '[]'::jsonb,
+    page_size integer NOT NULL DEFAULT 25,
+    visibility text NOT NULL DEFAULT 'private'::text,
+    created_by uuid,
+    updated_by uuid,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    PRIMARY KEY (id)
+);
+
+-- Table: permissions
+CREATE TABLE public.permissions (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL,
+    display_name text NOT NULL,
+    description text,
+    resource_type public.resource_type NOT NULL,
+    operation public.permission_operation_type NOT NULL,
+    scope_level text DEFAULT 'GLOBAL'::text,
+    conditions jsonb,
+    is_system_permission boolean NOT NULL DEFAULT false,
+    is_active boolean NOT NULL DEFAULT true,
+    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CHECK ((length(display_name) <= 150)),
+    CHECK ((scope_level = ANY (ARRAY['GLOBAL'::text, 'COLLEGE'::text, 'DEPARTMENT'::text, 'COURSE'::text, 'SELF'::text]))),
+    CHECK ((length(name) <= 100))
+);
+
 -- Table: fee_receipts
 CREATE TABLE public.fee_receipts (,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -130,7 +219,7 @@ CREATE TABLE public.fee_receipts (,
     total_amount numeric(12,2) NOT NULL,
     paid_amount numeric(12,2) NOT NULL,
     balance_amount numeric(12,2) NOT NULL,
-    payment_method USER-DEFINED NOT NULL,
+    payment_method public.payment_method_type NOT NULL,
     payment_reference text,
     payment_date date,
     bank_name text,
@@ -140,7 +229,7 @@ CREATE TABLE public.fee_receipts (,
     legacy_other_fee numeric(12,2),
     legacy_pre_bal numeric(12,2),
     legacy_rebate numeric(12,2),
-    status USER-DEFINED NOT NULL DEFAULT 'ACTIVE'::receipt_status_type,
+    status public.receipt_status_type NOT NULL DEFAULT 'ACTIVE'::receipt_status_type,
     comments text,
     created_by uuid,
     updated_by uuid,
@@ -169,95 +258,6 @@ CREATE TABLE public.fee_receipts (,
     CHECK ((paid_amount >= (0)::numeric))
 );
 
--- Table: system_config
-CREATE TABLE public.system_config (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    key text NOT NULL,
-    value jsonb,
-    description text,
-    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
-);
-
--- Table: colleges
-CREATE TABLE public.colleges (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    legacy_id integer,
-    code text,
-    name text NOT NULL,
-    address text,
-    website text,
-    email text,
-    phone text,
-    affiliation text,
-    approved_by text,
-    status smallint DEFAULT 1,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_by uuid,
-    admission_number integer NOT NULL DEFAULT 10000,
-    PRIMARY KEY (id),
-    CHECK ((status = ANY (ARRAY[0, 1])))
-);
-
--- Table: permissions
-CREATE TABLE public.permissions (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    name text NOT NULL,
-    display_name text NOT NULL,
-    description text,
-    resource_type USER-DEFINED NOT NULL,
-    operation USER-DEFINED NOT NULL,
-    scope_level text DEFAULT 'GLOBAL'::text,
-    conditions jsonb,
-    is_system_permission boolean NOT NULL DEFAULT false,
-    is_active boolean NOT NULL DEFAULT true,
-    created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    CHECK ((length(display_name) <= 150)),
-    CHECK ((scope_level = ANY (ARRAY['GLOBAL'::text, 'COLLEGE'::text, 'DEPARTMENT'::text, 'COURSE'::text, 'SELF'::text]))),
-    CHECK ((length(name) <= 100))
-);
-
--- Table: report_templates
-CREATE TABLE public.report_templates (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    name text NOT NULL,
-    description text,
-    source_key text NOT NULL,
-    columns jsonb NOT NULL DEFAULT '[]'::jsonb,
-    filters jsonb NOT NULL DEFAULT '[]'::jsonb,
-    sort jsonb NOT NULL DEFAULT '[]'::jsonb,
-    page_size integer NOT NULL DEFAULT 25,
-    visibility text NOT NULL DEFAULT 'private'::text,
-    created_by uuid,
-    updated_by uuid,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_at timestamp with time zone NOT NULL DEFAULT now(),
-    PRIMARY KEY (id)
-);
-
--- Table: agents
-CREATE TABLE public.agents (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    legacy_id integer,
-    name text NOT NULL,
-    email_raw text,
-    email text,
-    phone_raw text,
-    phone_e164 text,
-    status smallint NOT NULL DEFAULT 1,
-    source_channel text,
-    notes text,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_at timestamp with time zone NOT NULL DEFAULT now(),
-    updated_by uuid,
-    PRIMARY KEY (id),
-    CHECK ((status = ANY (ARRAY[0, 1])))
-);
-
 -- Table: users
 CREATE TABLE public.users (,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -268,7 +268,7 @@ CREATE TABLE public.users (,
     first_name text NOT NULL,
     last_name text NOT NULL,
     full_name text,
-    status USER-DEFINED NOT NULL DEFAULT 'PENDING_VERIFICATION'::user_status_type,
+    status public.user_status_type NOT NULL DEFAULT 'PENDING_VERIFICATION'::user_status_type,
     is_system_admin boolean NOT NULL DEFAULT false,
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -286,34 +286,6 @@ CREATE TABLE public.users (,
     CHECK ((email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$'::text)),
     CHECK ((length(first_name) <= 100)),
     CHECK ((length(phone) <= 15))
-);
-
--- Table: fee_ledger_events
-CREATE TABLE public.fee_ledger_events (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    event_type USER-DEFINED NOT NULL,
-    event_date timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    enrollment_id uuid NOT NULL,
-    academic_year text NOT NULL,
-    fee_component_id uuid NOT NULL,
-    amount numeric(12,2) NOT NULL,
-    running_balance numeric(12,2) NOT NULL,
-    receipt_id uuid,
-    fee_plan_id uuid,
-    reference_event_id uuid,
-    description text,
-    created_by uuid,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    legacy_receipt_id text,
-    legacy_balance_id text,
-    legacy_record_id text,
-    deleted_at timestamp with time zone,
-    deleted_by uuid,
-    PRIMARY KEY (id),
-    CHECK ((academic_year ~ '^\d{4}-\d{2}$'::text)),
-    CHECK ((running_balance = round(running_balance, 2))),
-    CHECK ((amount = round(amount, 2))),
-    CHECK ((length(academic_year) <= 10))
 );
 
 -- Table: student_addresses
@@ -411,31 +383,6 @@ CREATE TABLE public.student_profiles (,
     PRIMARY KEY (student_id)
 );
 
--- Table: fee_receipt_balance_records
-CREATE TABLE public.fee_receipt_balance_records (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    receipt_id uuid NOT NULL,
-    fee_component_id uuid NOT NULL,
-    charge_amount numeric(12,2) NOT NULL DEFAULT 0,
-    paid_amount numeric(12,2) NOT NULL DEFAULT 0,
-    balance_amount numeric(12,2) NOT NULL DEFAULT 0,
-    enrollment_id uuid NOT NULL,
-    academic_year text NOT NULL,
-    receipt_date date NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    legacy_record_id text,
-    PRIMARY KEY (id),
-    CHECK ((academic_year ~ '^\d{4}-\d{2}$'::text)),
-    CHECK ((receipt_date <= CURRENT_DATE)),
-    CHECK (((charge_amount = round(charge_amount, 2)) AND (paid_amount = round(paid_amount, 2)) AND (balance_amount = round(balance_amount, 2)))),
-    CHECK (((charge_amount = round(charge_amount, 2)) AND (paid_amount = round(paid_amount, 2)) AND (balance_amount = round(balance_amount, 2)))),
-    CHECK (((charge_amount = round(charge_amount, 2)) AND (paid_amount = round(paid_amount, 2)) AND (balance_amount = round(balance_amount, 2)))),
-    CHECK ((length(academic_year) <= 10)),
-    CHECK ((balance_amount = (charge_amount - paid_amount))),
-    CHECK ((balance_amount = (charge_amount - paid_amount))),
-    CHECK ((balance_amount = (charge_amount - paid_amount)))
-);
-
 -- Table: courses
 CREATE TABLE public.courses (,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -486,6 +433,59 @@ CREATE TABLE public.agent_tags (,
     tag text NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     PRIMARY KEY (agent_id, tag)
+);
+
+-- Table: fee_ledger_events
+CREATE TABLE public.fee_ledger_events (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    event_type public.fee_ledger_event_type NOT NULL,
+    event_date timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    enrollment_id uuid NOT NULL,
+    academic_year text NOT NULL,
+    fee_component_id uuid NOT NULL,
+    amount numeric(12,2) NOT NULL,
+    running_balance numeric(12,2) NOT NULL,
+    receipt_id uuid,
+    fee_plan_id uuid,
+    reference_event_id uuid,
+    description text,
+    created_by uuid,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    legacy_receipt_id text,
+    legacy_balance_id text,
+    legacy_record_id text,
+    deleted_at timestamp with time zone,
+    deleted_by uuid,
+    PRIMARY KEY (id),
+    CHECK ((academic_year ~ '^\d{4}-\d{2}$'::text)),
+    CHECK ((running_balance = round(running_balance, 2))),
+    CHECK ((amount = round(amount, 2))),
+    CHECK ((length(academic_year) <= 10))
+);
+
+-- Table: fee_receipt_balance_records
+CREATE TABLE public.fee_receipt_balance_records (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    receipt_id uuid NOT NULL,
+    fee_component_id uuid NOT NULL,
+    charge_amount numeric(12,2) NOT NULL DEFAULT 0,
+    paid_amount numeric(12,2) NOT NULL DEFAULT 0,
+    balance_amount numeric(12,2) NOT NULL DEFAULT 0,
+    enrollment_id uuid NOT NULL,
+    academic_year text NOT NULL,
+    receipt_date date NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    legacy_record_id text,
+    PRIMARY KEY (id),
+    CHECK ((academic_year ~ '^\d{4}-\d{2}$'::text)),
+    CHECK ((receipt_date <= CURRENT_DATE)),
+    CHECK (((charge_amount = round(charge_amount, 2)) AND (paid_amount = round(paid_amount, 2)) AND (balance_amount = round(balance_amount, 2)))),
+    CHECK (((charge_amount = round(charge_amount, 2)) AND (paid_amount = round(paid_amount, 2)) AND (balance_amount = round(balance_amount, 2)))),
+    CHECK (((charge_amount = round(charge_amount, 2)) AND (paid_amount = round(paid_amount, 2)) AND (balance_amount = round(balance_amount, 2)))),
+    CHECK ((length(academic_year) <= 10)),
+    CHECK ((balance_amount = (charge_amount - paid_amount))),
+    CHECK ((balance_amount = (charge_amount - paid_amount))),
+    CHECK ((balance_amount = (charge_amount - paid_amount)))
 );
 
 -- Table: external_user_profiles
@@ -539,8 +539,8 @@ CREATE TABLE public.staff_profiles (,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
     employee_id text,
-    employment_type USER-DEFINED NOT NULL,
-    department USER-DEFINED NOT NULL,
+    employment_type public.employment_type NOT NULL,
+    department public.department_type NOT NULL,
     designation text NOT NULL,
     joining_date date NOT NULL,
     confirmation_date date,
@@ -639,26 +639,6 @@ CREATE TABLE public.user_roles (,
     PRIMARY KEY (id)
 );
 
--- Table: fee_receipt_allocations
-CREATE TABLE public.fee_receipt_allocations (,
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    receipt_id uuid NOT NULL,
-    ledger_event_id uuid NOT NULL,
-    fee_component_id uuid NOT NULL,
-    allocated_amount numeric(12,2) NOT NULL,
-    enrollment_id uuid NOT NULL,
-    academic_year text NOT NULL,
-    receipt_date date NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    legacy_record_id text,
-    PRIMARY KEY (id),
-    CHECK ((receipt_date <= CURRENT_DATE)),
-    CHECK ((allocated_amount > (0)::numeric)),
-    CHECK ((academic_year ~ '^\d{4}-\d{2}$'::text)),
-    CHECK ((allocated_amount = round(allocated_amount, 2))),
-    CHECK ((length(academic_year) <= 10))
-);
-
 -- Table: fee_plans
 CREATE TABLE public.fee_plans (,
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -677,6 +657,26 @@ CREATE TABLE public.fee_plans (,
     CHECK (((effective_end IS NULL) OR (effective_end > effective_start))),
     CHECK (((effective_end IS NULL) OR (effective_end > effective_start))),
     CHECK ((status = ANY (ARRAY[0, 1])))
+);
+
+-- Table: fee_receipt_allocations
+CREATE TABLE public.fee_receipt_allocations (,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    receipt_id uuid NOT NULL,
+    ledger_event_id uuid NOT NULL,
+    fee_component_id uuid NOT NULL,
+    allocated_amount numeric(12,2) NOT NULL,
+    enrollment_id uuid NOT NULL,
+    academic_year text NOT NULL,
+    receipt_date date NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    legacy_record_id text,
+    PRIMARY KEY (id),
+    CHECK ((receipt_date <= CURRENT_DATE)),
+    CHECK ((allocated_amount > (0)::numeric)),
+    CHECK ((academic_year ~ '^\d{4}-\d{2}$'::text)),
+    CHECK ((allocated_amount = round(allocated_amount, 2))),
+    CHECK ((length(academic_year) <= 10))
 );
 
 -- Table: fee_plan_items
@@ -725,11 +725,11 @@ CREATE TABLE public.fee_adjustments (,
     enrollment_id uuid NOT NULL,
     academic_year text NOT NULL,
     fee_component_id uuid,
-    adjustment_type USER-DEFINED NOT NULL,
+    adjustment_type public.fee_adjustment_type NOT NULL,
     amount numeric(12,2) NOT NULL,
     title text NOT NULL,
     reason text NOT NULL,
-    status USER-DEFINED NOT NULL DEFAULT 'ACTIVE'::fee_adjustment_status,
+    status public.fee_adjustment_status NOT NULL DEFAULT 'ACTIVE'::fee_adjustment_status,
     effective_date date NOT NULL DEFAULT CURRENT_DATE,
     created_by uuid NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -817,16 +817,6 @@ CREATE TABLE public.student_progressions (,
 );
 
 -- Add foreign key constraints
--- Foreign keys for fee_ledger_events
-ALTER TABLE public.fee_ledger_events 
-    ADD CONSTRAINT fee_ledger_events_fee_component_id_fkey 
-    FOREIGN KEY (fee_component_id) 
-    REFERENCES public.fee_components(id);
-ALTER TABLE public.fee_ledger_events 
-    ADD CONSTRAINT fk_fee_ledger_events_reference 
-    FOREIGN KEY (reference_event_id) 
-    REFERENCES public.fee_ledger_events(id);
-
 -- Foreign keys for student_addresses
 ALTER TABLE public.student_addresses 
     ADD CONSTRAINT student_addresses_student_id_fkey 
@@ -876,17 +866,6 @@ ALTER TABLE public.student_profiles
     REFERENCES public.students(id)
     ON DELETE CASCADE;
 
--- Foreign keys for fee_receipt_balance_records
-ALTER TABLE public.fee_receipt_balance_records 
-    ADD CONSTRAINT fee_receipt_balance_records_fee_component_id_fkey 
-    FOREIGN KEY (fee_component_id) 
-    REFERENCES public.fee_components(id);
-ALTER TABLE public.fee_receipt_balance_records 
-    ADD CONSTRAINT fee_receipt_balance_records_receipt_id_fkey 
-    FOREIGN KEY (receipt_id) 
-    REFERENCES public.fee_receipts(id)
-    ON DELETE CASCADE;
-
 -- Foreign keys for courses
 ALTER TABLE public.courses 
     ADD CONSTRAINT courses_college_id_fkey 
@@ -917,6 +896,27 @@ ALTER TABLE public.agent_tags
     ADD CONSTRAINT agent_tags_agent_id_fkey 
     FOREIGN KEY (agent_id) 
     REFERENCES public.agents(id)
+    ON DELETE CASCADE;
+
+-- Foreign keys for fee_ledger_events
+ALTER TABLE public.fee_ledger_events 
+    ADD CONSTRAINT fee_ledger_events_fee_component_id_fkey 
+    FOREIGN KEY (fee_component_id) 
+    REFERENCES public.fee_components(id);
+ALTER TABLE public.fee_ledger_events 
+    ADD CONSTRAINT fk_fee_ledger_events_reference 
+    FOREIGN KEY (reference_event_id) 
+    REFERENCES public.fee_ledger_events(id);
+
+-- Foreign keys for fee_receipt_balance_records
+ALTER TABLE public.fee_receipt_balance_records 
+    ADD CONSTRAINT fee_receipt_balance_records_fee_component_id_fkey 
+    FOREIGN KEY (fee_component_id) 
+    REFERENCES public.fee_components(id);
+ALTER TABLE public.fee_receipt_balance_records 
+    ADD CONSTRAINT fee_receipt_balance_records_receipt_id_fkey 
+    FOREIGN KEY (receipt_id) 
+    REFERENCES public.fee_receipts(id)
     ON DELETE CASCADE;
 
 -- Foreign keys for external_user_profiles
@@ -999,6 +999,18 @@ ALTER TABLE public.user_roles
     REFERENCES public.users(id)
     ON DELETE CASCADE;
 
+-- Foreign keys for fee_plans
+ALTER TABLE public.fee_plans 
+    ADD CONSTRAINT fee_plans_course_id_fkey 
+    FOREIGN KEY (course_id) 
+    REFERENCES public.courses(id)
+    ON DELETE CASCADE;
+ALTER TABLE public.fee_plans 
+    ADD CONSTRAINT fee_plans_session_id_fkey 
+    FOREIGN KEY (session_id) 
+    REFERENCES public.academic_sessions(id)
+    ON DELETE SET NULL;
+
 -- Foreign keys for fee_receipt_allocations
 ALTER TABLE public.fee_receipt_allocations 
     ADD CONSTRAINT fee_receipt_allocations_fee_component_id_fkey 
@@ -1013,18 +1025,6 @@ ALTER TABLE public.fee_receipt_allocations
     FOREIGN KEY (receipt_id) 
     REFERENCES public.fee_receipts(id)
     ON DELETE CASCADE;
-
--- Foreign keys for fee_plans
-ALTER TABLE public.fee_plans 
-    ADD CONSTRAINT fee_plans_course_id_fkey 
-    FOREIGN KEY (course_id) 
-    REFERENCES public.courses(id)
-    ON DELETE CASCADE;
-ALTER TABLE public.fee_plans 
-    ADD CONSTRAINT fee_plans_session_id_fkey 
-    FOREIGN KEY (session_id) 
-    REFERENCES public.academic_sessions(id)
-    ON DELETE SET NULL;
 
 -- Foreign keys for fee_plan_items
 ALTER TABLE public.fee_plan_items 
@@ -1108,22 +1108,46 @@ ALTER TABLE public.student_progressions
     ON DELETE CASCADE;
 
 -- Create indexes
--- Indexes for fee_components
-CREATE UNIQUE INDEX fee_components_code_key ON public.fee_components (code);
+-- Indexes for system_config
+CREATE UNIQUE INDEX system_config_key_key ON public.system_config (key);
 
 -- Indexes for students
 CREATE UNIQUE INDEX students_legacy_student_id_key ON public.students (legacy_student_id);
 CREATE UNIQUE INDEX idx_students_legacy ON public.students (legacy_student_id);
 CREATE INDEX ix_students_full_name_trgm ON public.students (full_name gin_trgm_ops);
 
+-- Indexes for colleges
+CREATE UNIQUE INDEX colleges_legacy_id_key ON public.colleges (legacy_id);
+CREATE UNIQUE INDEX idx_colleges_code_unique ON public.colleges (code) WHERE (code IS NOT NULL);
+CREATE INDEX idx_colleges_status ON public.colleges (status);
+
+-- Indexes for agents
+CREATE UNIQUE INDEX agents_legacy_id_key ON public.agents (legacy_id);
+CREATE INDEX idx_agents_status ON public.agents (status);
+CREATE INDEX idx_agents_email ON public.agents (email);
+CREATE INDEX idx_agents_phone_e164 ON public.agents (phone_e164);
+
+-- Indexes for fee_components
+CREATE UNIQUE INDEX fee_components_code_key ON public.fee_components (code);
+
+-- Indexes for academic_sessions
+CREATE UNIQUE INDEX academic_sessions_legacy_id_key ON public.academic_sessions (legacy_id);
+CREATE INDEX idx_sessions_start ON public.academic_sessions (start_date);
+
 -- Indexes for roles
 CREATE UNIQUE INDEX roles_name_key ON public.roles (name);
 CREATE INDEX ix_roles_name ON public.roles (name) WHERE (is_active = true);
 CREATE INDEX ix_roles_level ON public.roles (level DESC) WHERE (is_active = true);
 
--- Indexes for academic_sessions
-CREATE UNIQUE INDEX academic_sessions_legacy_id_key ON public.academic_sessions (legacy_id);
-CREATE INDEX idx_sessions_start ON public.academic_sessions (start_date);
+-- Indexes for report_templates
+CREATE INDEX ix_report_templates_owner ON public.report_templates (created_by, visibility);
+
+-- Indexes for permissions
+CREATE UNIQUE INDEX permissions_name_key ON public.permissions (name);
+CREATE UNIQUE INDEX uk_permissions_resource_operation ON public.permissions (resource_type, operation, scope_level);
+CREATE INDEX ix_permissions_resource_operation ON public.permissions (resource_type, operation) WHERE (is_active = true);
+CREATE INDEX ix_permissions_scope ON public.permissions (scope_level) WHERE (is_active = true);
+CREATE INDEX ix_permissions_resource_operation_scope ON public.permissions (resource_type, operation, scope_level) WHERE (is_active = true);
 
 -- Indexes for fee_receipts
 CREATE INDEX ix_fee_receipts_enrollment_year ON public.fee_receipts (enrollment_id, academic_year) WHERE (deleted_at IS NULL);
@@ -1137,30 +1161,6 @@ CREATE INDEX ix_fee_receipts_enrollment_date ON public.fee_receipts (enrollment_
 CREATE INDEX ix_fee_receipts_recent_active ON public.fee_receipts (enrollment_id, receipt_date DESC) WHERE ((deleted_at IS NULL) AND (status = 'ACTIVE'::receipt_status_type));
 CREATE INDEX ix_fee_receipts_is_edited ON public.fee_receipts (is_edited) WHERE (deleted_at IS NULL);
 
--- Indexes for system_config
-CREATE UNIQUE INDEX system_config_key_key ON public.system_config (key);
-
--- Indexes for colleges
-CREATE UNIQUE INDEX colleges_legacy_id_key ON public.colleges (legacy_id);
-CREATE UNIQUE INDEX idx_colleges_code_unique ON public.colleges (code) WHERE (code IS NOT NULL);
-CREATE INDEX idx_colleges_status ON public.colleges (status);
-
--- Indexes for permissions
-CREATE UNIQUE INDEX permissions_name_key ON public.permissions (name);
-CREATE UNIQUE INDEX uk_permissions_resource_operation ON public.permissions (resource_type, operation, scope_level);
-CREATE INDEX ix_permissions_resource_operation ON public.permissions (resource_type, operation) WHERE (is_active = true);
-CREATE INDEX ix_permissions_scope ON public.permissions (scope_level) WHERE (is_active = true);
-CREATE INDEX ix_permissions_resource_operation_scope ON public.permissions (resource_type, operation, scope_level) WHERE (is_active = true);
-
--- Indexes for report_templates
-CREATE INDEX ix_report_templates_owner ON public.report_templates (created_by, visibility);
-
--- Indexes for agents
-CREATE UNIQUE INDEX agents_legacy_id_key ON public.agents (legacy_id);
-CREATE INDEX idx_agents_status ON public.agents (status);
-CREATE INDEX idx_agents_email ON public.agents (email);
-CREATE INDEX idx_agents_phone_e164 ON public.agents (phone_e164);
-
 -- Indexes for users
 CREATE UNIQUE INDEX users_email_key ON public.users (email);
 CREATE UNIQUE INDEX users_username_key ON public.users (username);
@@ -1169,15 +1169,6 @@ CREATE INDEX ix_users_email ON public.users (email) WHERE (deleted_at IS NULL);
 CREATE INDEX ix_users_supabase_auth_id ON public.users (supabase_auth_id) WHERE (supabase_auth_id IS NOT NULL);
 CREATE INDEX ix_users_status ON public.users (status) WHERE (deleted_at IS NULL);
 CREATE INDEX ix_users_last_login ON public.users (last_login_at DESC) WHERE (deleted_at IS NULL);
-
--- Indexes for fee_ledger_events
-CREATE INDEX ix_fee_ledger_events_enrollment_year ON public.fee_ledger_events (enrollment_id, academic_year) WHERE (deleted_at IS NULL);
-CREATE INDEX ix_fee_ledger_events_component_date ON public.fee_ledger_events (fee_component_id, event_date DESC) WHERE (deleted_at IS NULL);
-CREATE INDEX ix_fee_ledger_events_receipt_id ON public.fee_ledger_events (receipt_id) WHERE ((receipt_id IS NOT NULL) AND (deleted_at IS NULL));
-CREATE INDEX ix_fee_ledger_events_legacy_receipt_id ON public.fee_ledger_events (legacy_receipt_id) WHERE (legacy_receipt_id IS NOT NULL);
-CREATE INDEX ix_fee_ledger_events_event_type ON public.fee_ledger_events (event_type) WHERE (deleted_at IS NULL);
-CREATE INDEX ix_fee_ledger_events_event_date ON public.fee_ledger_events (event_date DESC) WHERE (deleted_at IS NULL);
-CREATE INDEX ix_fee_ledger_events_amount ON public.fee_ledger_events (amount) WHERE ((deleted_at IS NULL) AND (amount <> (0)::numeric));
 
 -- Indexes for student_addresses
 CREATE UNIQUE INDEX student_addresses_student_id_addr_type_key ON public.student_addresses (student_id, addr_type);
@@ -1195,15 +1186,6 @@ CREATE UNIQUE INDEX student_internal_refs_student_id_ref_group_slot_number_key O
 -- Indexes for student_prior_education
 CREATE INDEX idx_student_prior_ed_student ON public.student_prior_education (student_id);
 
--- Indexes for fee_receipt_balance_records
-CREATE UNIQUE INDEX uk_fee_receipt_balance_records_receipt_component ON public.fee_receipt_balance_records (receipt_id, fee_component_id);
-CREATE INDEX ix_fee_receipt_balance_records_receipt_id ON public.fee_receipt_balance_records (receipt_id);
-CREATE INDEX ix_fee_receipt_balance_records_component_id ON public.fee_receipt_balance_records (fee_component_id);
-CREATE INDEX ix_fee_receipt_balance_records_enrollment_year ON public.fee_receipt_balance_records (enrollment_id, academic_year);
-CREATE INDEX ix_fee_receipt_balance_records_component_year ON public.fee_receipt_balance_records (fee_component_id, academic_year);
-CREATE INDEX ix_fee_receipt_balance_records_receipt_date ON public.fee_receipt_balance_records (receipt_date DESC);
-CREATE INDEX ix_fee_receipt_balance_records_balance_amount ON public.fee_receipt_balance_records (balance_amount) WHERE (balance_amount > (0)::numeric);
-
 -- Indexes for courses
 CREATE UNIQUE INDEX courses_legacy_id_key ON public.courses (course_identity);
 CREATE INDEX idx_courses_college ON public.courses (college_id);
@@ -1212,6 +1194,24 @@ CREATE INDEX ix_courses_college_id ON public.courses (college_id);
 -- Indexes for agent_contacts
 CREATE UNIQUE INDEX agent_contacts_agent_id_contact_type_value_norm_key ON public.agent_contacts (agent_id, contact_type, value_norm);
 CREATE INDEX idx_agent_contacts_type ON public.agent_contacts (contact_type);
+
+-- Indexes for fee_ledger_events
+CREATE INDEX ix_fee_ledger_events_enrollment_year ON public.fee_ledger_events (enrollment_id, academic_year) WHERE (deleted_at IS NULL);
+CREATE INDEX ix_fee_ledger_events_component_date ON public.fee_ledger_events (fee_component_id, event_date DESC) WHERE (deleted_at IS NULL);
+CREATE INDEX ix_fee_ledger_events_receipt_id ON public.fee_ledger_events (receipt_id) WHERE ((receipt_id IS NOT NULL) AND (deleted_at IS NULL));
+CREATE INDEX ix_fee_ledger_events_legacy_receipt_id ON public.fee_ledger_events (legacy_receipt_id) WHERE (legacy_receipt_id IS NOT NULL);
+CREATE INDEX ix_fee_ledger_events_event_type ON public.fee_ledger_events (event_type) WHERE (deleted_at IS NULL);
+CREATE INDEX ix_fee_ledger_events_event_date ON public.fee_ledger_events (event_date DESC) WHERE (deleted_at IS NULL);
+CREATE INDEX ix_fee_ledger_events_amount ON public.fee_ledger_events (amount) WHERE ((deleted_at IS NULL) AND (amount <> (0)::numeric));
+
+-- Indexes for fee_receipt_balance_records
+CREATE UNIQUE INDEX uk_fee_receipt_balance_records_receipt_component ON public.fee_receipt_balance_records (receipt_id, fee_component_id);
+CREATE INDEX ix_fee_receipt_balance_records_receipt_id ON public.fee_receipt_balance_records (receipt_id);
+CREATE INDEX ix_fee_receipt_balance_records_component_id ON public.fee_receipt_balance_records (fee_component_id);
+CREATE INDEX ix_fee_receipt_balance_records_enrollment_year ON public.fee_receipt_balance_records (enrollment_id, academic_year);
+CREATE INDEX ix_fee_receipt_balance_records_component_year ON public.fee_receipt_balance_records (fee_component_id, academic_year);
+CREATE INDEX ix_fee_receipt_balance_records_receipt_date ON public.fee_receipt_balance_records (receipt_date DESC);
+CREATE INDEX ix_fee_receipt_balance_records_balance_amount ON public.fee_receipt_balance_records (balance_amount) WHERE (balance_amount > (0)::numeric);
 
 -- Indexes for external_user_profiles
 CREATE UNIQUE INDEX external_user_profiles_user_id_key ON public.external_user_profiles (user_id);
@@ -1244,6 +1244,11 @@ CREATE INDEX ix_user_roles_expires_at_active ON public.user_roles (expires_at) W
 CREATE INDEX ix_user_roles_scope_college ON public.user_roles (scope_college_id) WHERE (scope_college_id IS NOT NULL);
 CREATE INDEX ix_user_roles_scope_department ON public.user_roles (scope_department) WHERE (scope_department IS NOT NULL);
 
+-- Indexes for fee_plans
+CREATE UNIQUE INDEX fee_plans_legacy_id_key ON public.fee_plans (legacy_id);
+CREATE INDEX idx_fee_plans_course ON public.fee_plans (course_id);
+CREATE INDEX idx_fee_plans_session ON public.fee_plans (session_id);
+
 -- Indexes for fee_receipt_allocations
 CREATE UNIQUE INDEX uk_fee_receipt_allocations_receipt_component ON public.fee_receipt_allocations (receipt_id, fee_component_id);
 CREATE INDEX ix_fee_receipt_allocations_receipt_id ON public.fee_receipt_allocations (receipt_id);
@@ -1253,11 +1258,6 @@ CREATE INDEX ix_fee_receipt_allocations_component_year ON public.fee_receipt_all
 CREATE INDEX ix_fee_receipt_allocations_receipt_date ON public.fee_receipt_allocations (receipt_date DESC);
 CREATE INDEX ix_fee_receipt_allocations_allocated_amount ON public.fee_receipt_allocations (allocated_amount) WHERE (allocated_amount > (0)::numeric);
 CREATE INDEX ix_fee_receipt_allocations_legacy_record_id ON public.fee_receipt_allocations (legacy_record_id) WHERE (legacy_record_id IS NOT NULL);
-
--- Indexes for fee_plans
-CREATE UNIQUE INDEX fee_plans_legacy_id_key ON public.fee_plans (legacy_id);
-CREATE INDEX idx_fee_plans_course ON public.fee_plans (course_id);
-CREATE INDEX idx_fee_plans_session ON public.fee_plans (session_id);
 
 -- Indexes for fee_plan_items
 CREATE INDEX idx_fee_plan_items_plan ON public.fee_plan_items (fee_plan_id);
