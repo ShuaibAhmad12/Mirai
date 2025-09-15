@@ -1,105 +1,137 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# MiraiSetu — Developer Guide
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+This document helps new developers understand the project quickly and become productive. It explains the architecture, how to run the app, where core logic lives, and the conventions we follow.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## Overview
 
-## Features
+- Framework: Next.js App Router (Next 15) with React 19
+- UI: Tailwind CSS v4 + shadcn/radix primitives
+- Data: Supabase (Postgres) with RLS; SSR client for server actions and API routes
+- State: Minimal client state, some features use Zustand stores
+- Validation: zod
+- Auth/RBAC: Supabase Auth + custom RBAC layer enforced in both DB (RLS) and app
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+The app targets an academic/fees domain: admissions, students, agents, fees/receipts, and reporting.
 
-## Demo
+## Getting started
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+1. Prerequisites
+   - Node 20+
+   - A Supabase project (URL + anon key)
+   - A Postgres-compatible database (Supabase provides one)
 
-## Deploy to Vercel
+2. Environment variables (create `.env.local`)
 
-Vercel deployment will guide you through creating a Supabase account and project.
+```bash
+NEXT_PUBLIC_SUPABASE_URL=... 
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY=...
+# Optional – used by specific services if present
+# SITE_URL=http://localhost:3000
+```
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+3. Install and run
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+```bash
+pm install
+npm run dev
+```
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+- Dev server uses Turbopack. Production build: `npm run build` then `npm start`.
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+## Project layout
 
-## Clone and run locally
+- `app/` — Next.js App Router pages and API routes
+  - `(protected)/` — authenticated area (RBAC-gated)
+    - `reports/` — Reporting UI (ReportBuilder)
+  - `api/` — server endpoints; thin wrappers around services
+- `components/` — UI and feature components (shadcn-style)
+- `lib/` — core libraries and domain services
+  - `supabase/` — SSR client factory, client helpers, middleware
+  - `rbac/` — RBAC types and helpers
+  - `reports/` — reporting types, registry whitelist, services
+  - `services/` — domain services (students, fees, admissions, etc.)
+  - `types/`, `stores/`, `providers/` — shared types/state/providers
+- `database/Schema/` — SQL migrations and documentation for the data model
+- `scripts/` — one-off scripts (e.g., migration helpers)
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+## Supabase integration
 
-2. Create a Next.js app using the Supabase Starter template npx command
+All server-side data access goes through the SSR client:
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+- `lib/supabase/server.ts` — `createClient()` reads/writes cookies via Next headers. Only create clients inside server functions; do not cache globally.
+- Auth: Sessions are handled via Supabase cookies and middleware. DB access is subject to RLS policies.
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+## RBAC model
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+- RBAC is implemented in the database and reflected in app helpers (`lib/rbac`).
+- UI gating is done in `(protected)` routes and layout/sidebar.
+- Keep business-logic authorization in services; UI should not make auth decisions alone.
 
-3. Use `cd` to change into the app's directory
+## Reporting system
 
-   ```bash
-   cd with-supabase-app
-   ```
+Goal: safe, flexible reporting without ad‑hoc SQL.
 
-4. Rename `.env.example` to `.env.local` and update the following:
+- Registry whitelist: `lib/reports/registry.ts` defines allowed sources, fields, and safe relations.
+- Types: `lib/reports/types.ts` defines QuerySpec (columns, sort, filters, joins, pagination).
+- Run service: `lib/reports/reporting.service.ts` builds a PostgREST select string with embedded relations and applies filters/sort/pagination server-side.
+- Templates: CRUD in `lib/reports/templates.service.ts`; table and RLS in `database/Schema/010_report_templates.sql`.
+- API routes: `app/api/reports/*` expose capabilities, run, and templates endpoints.
+- UI: `components/reports/ReportBuilder.tsx` builds queries, saves/loads templates, CSV export.
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+Important:
+- The registry must reflect actual DB column names. Verify with SQL in `database/Schema/`.
+- Dotted fields (relation.field) are supported for sorting and filtering; joins default to left to avoid dropping rows.
+- Avoid array-heavy relations (like receipts under students) in common reports to keep payloads small.
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+## Database model (high level)
 
-5. You can now run the Next.js local development server:
+- Core student domain: see `005_stu_admission_profile_promotion.sql` for `students`, `student_profiles`, and `student_enrollments`.
+- Fees and receipts: see `006_fee_ledger_system.sql` and `006.1_fee_current_balances.sql`.
+- RBAC: seeds and roles in `007_rbac_user_management.sql` and `008_rbac_initialization.sql`.
+- Report templates: `010_report_templates.sql`.
 
-   ```bash
-   npm run dev
-   ```
+Run order suggestion for a fresh environment:
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+1. `001_core_schema.sql` … up to `011_admissions.sql`
+2. Ensure RLS policies are active (see respective files)
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+## Coding conventions
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+- Server modules exporting actions should export individual async functions only (avoid object exports). Do not export TypeScript types as runtime values.
+- Use zod to validate request payloads at API boundaries.
+- Keep services thin and reusable; API routes should delegate to services.
+- Prefer controlled components and shadcn primitives for UI.
 
-## Feedback and issues
+## Development workflows
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+- Linting: `npm run lint`
+- Build: `npm run build`
+- Running scripts: `npm run migrate:fee-payment`
 
-## More Supabase examples
+### Feature areas
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+- Admissions/students: `lib/services/*` (admissions, student, enrollment).
+- Fees: `lib/services/fee-payment.service.ts`, `fees.service.ts`.
+- Agents: `lib/services/agents.service.ts`.
+- Reporting: `lib/reports/*` and `(protected)/reports` page.
+
+## Troubleshooting
+
+- 500s in reports often indicate a registry vs. schema mismatch. Cross-check `lib/reports/registry.ts` with SQL in `database/Schema`.
+- Turbopack errors like “A ‘use server’ file can only export async functions” mean a module exported objects or types at runtime — switch to named async function exports only.
+- If SSR Supabase calls fail, confirm `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY` are set and cookies are available in server context.
+
+## Roadmap / Notes for contributors
+
+- Reporting: add joined-field filters ‘in’ operator, XLSX export, and long-running job support for large reports.
+- Expand registry sources cautiously — whitelist only RLS-safe columns and relations.
+- Add tests for services and schema guards where practical.
+
+## Support scripts and docs
+
+- `database/Schema/README.md` and other SQL files include inline docs.
+- `RBAC_Implementation_Plan.md` explains roles and permissions strategy.
+
+---
+
+Welcome aboard! Skim the schema docs to get domain context, then start from `(protected)/reports` and `lib/reports/*` to understand the reporting pipeline.
