@@ -16,6 +16,7 @@ The app targets an academic/fees domain: admissions, students, agents, fees/rece
 ## Getting started
 
 1. Prerequisites
+
    - Node 20+
    - A Supabase project (URL + anon key)
    - A Postgres-compatible database (Supabase provides one)
@@ -23,7 +24,7 @@ The app targets an academic/fees domain: admissions, students, agents, fees/rece
 2. Environment variables (create `.env.local`)
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=... 
+NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY=...
 # Optional – used by specific services if present
 # SITE_URL=http://localhost:3000
@@ -79,6 +80,7 @@ Goal: safe, flexible reporting without ad‑hoc SQL.
 - UI: `components/reports/ReportBuilder.tsx` builds queries, saves/loads templates, CSV export.
 
 Important:
+
 - The registry must reflect actual DB column names. Verify with SQL in `database/Schema/`.
 - Dotted fields (relation.field) are supported for sorting and filtering; joins default to left to avoid dropping rows.
 - Avoid array-heavy relations (like receipts under students) in common reports to keep payloads small.

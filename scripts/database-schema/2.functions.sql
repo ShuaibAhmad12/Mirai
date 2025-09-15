@@ -9,6 +9,11 @@
 -- Language: plpgsql
 -- Arguments: p_receipt_id uuid, p_cancellation_reason text, p_cancelled_by uuid DEFAULT NULL::uuid
 -- Return Type: void
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE OR REPLACE FUNCTION public.cancel_fee_payment(p_receipt_id uuid, p_cancellation_reason text, p_cancelled_by uuid DEFAULT NULL::uuid)
  RETURNS void
  LANGUAGE plpgsql
@@ -324,11 +329,7 @@ $function$
 -- Language: c
 -- Arguments: text, internal, smallint, internal, internal, internal, internal
 -- Return Type: internal
-CREATE OR REPLACE FUNCTION public.gin_extract_query_trgm(text, internal, smallint, internal, internal, internal, internal)
- RETURNS internal
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gin_extract_query_trgm$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gin_extract_value_trgm
@@ -336,11 +337,7 @@ AS '$libdir/pg_trgm', $function$gin_extract_query_trgm$function$
 -- Language: c
 -- Arguments: text, internal
 -- Return Type: internal
-CREATE OR REPLACE FUNCTION public.gin_extract_value_trgm(text, internal)
- RETURNS internal
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gin_extract_value_trgm$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gin_trgm_consistent
@@ -348,11 +345,7 @@ AS '$libdir/pg_trgm', $function$gin_extract_value_trgm$function$
 -- Language: c
 -- Arguments: internal, smallint, text, integer, internal, internal, internal, internal
 -- Return Type: boolean
-CREATE OR REPLACE FUNCTION public.gin_trgm_consistent(internal, smallint, text, integer, internal, internal, internal, internal)
- RETURNS boolean
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gin_trgm_consistent$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gin_trgm_triconsistent
@@ -360,11 +353,7 @@ AS '$libdir/pg_trgm', $function$gin_trgm_consistent$function$
 -- Language: c
 -- Arguments: internal, smallint, text, integer, internal, internal, internal
 -- Return Type: "char"
-CREATE OR REPLACE FUNCTION public.gin_trgm_triconsistent(internal, smallint, text, integer, internal, internal, internal)
- RETURNS "char"
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gin_trgm_triconsistent$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_compress
@@ -372,11 +361,7 @@ AS '$libdir/pg_trgm', $function$gin_trgm_triconsistent$function$
 -- Language: c
 -- Arguments: internal
 -- Return Type: internal
-CREATE OR REPLACE FUNCTION public.gtrgm_compress(internal)
- RETURNS internal
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_compress$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_consistent
@@ -384,11 +369,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_compress$function$
 -- Language: c
 -- Arguments: internal, text, smallint, oid, internal
 -- Return Type: boolean
-CREATE OR REPLACE FUNCTION public.gtrgm_consistent(internal, text, smallint, oid, internal)
- RETURNS boolean
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_consistent$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_decompress
@@ -396,11 +377,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_consistent$function$
 -- Language: c
 -- Arguments: internal
 -- Return Type: internal
-CREATE OR REPLACE FUNCTION public.gtrgm_decompress(internal)
- RETURNS internal
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_decompress$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_distance
@@ -408,11 +385,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_decompress$function$
 -- Language: c
 -- Arguments: internal, text, smallint, oid, internal
 -- Return Type: double precision
-CREATE OR REPLACE FUNCTION public.gtrgm_distance(internal, text, smallint, oid, internal)
- RETURNS double precision
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_distance$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_in
@@ -420,11 +393,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_distance$function$
 -- Language: c
 -- Arguments: cstring
 -- Return Type: gtrgm
-CREATE OR REPLACE FUNCTION public.gtrgm_in(cstring)
- RETURNS gtrgm
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_in$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_options
@@ -432,11 +401,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_in$function$
 -- Language: c
 -- Arguments: internal
 -- Return Type: void
-CREATE OR REPLACE FUNCTION public.gtrgm_options(internal)
- RETURNS void
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE
-AS '$libdir/pg_trgm', $function$gtrgm_options$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_out
@@ -444,11 +409,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_options$function$
 -- Language: c
 -- Arguments: gtrgm
 -- Return Type: cstring
-CREATE OR REPLACE FUNCTION public.gtrgm_out(gtrgm)
- RETURNS cstring
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_out$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_penalty
@@ -456,11 +417,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_out$function$
 -- Language: c
 -- Arguments: internal, internal, internal
 -- Return Type: internal
-CREATE OR REPLACE FUNCTION public.gtrgm_penalty(internal, internal, internal)
- RETURNS internal
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_penalty$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_picksplit
@@ -468,11 +425,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_penalty$function$
 -- Language: c
 -- Arguments: internal, internal
 -- Return Type: internal
-CREATE OR REPLACE FUNCTION public.gtrgm_picksplit(internal, internal)
- RETURNS internal
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_picksplit$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_same
@@ -480,11 +433,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_picksplit$function$
 -- Language: c
 -- Arguments: gtrgm, gtrgm, internal
 -- Return Type: internal
-CREATE OR REPLACE FUNCTION public.gtrgm_same(gtrgm, gtrgm, internal)
- RETURNS internal
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_same$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: gtrgm_union
@@ -492,11 +441,7 @@ AS '$libdir/pg_trgm', $function$gtrgm_same$function$
 -- Language: c
 -- Arguments: internal, internal
 -- Return Type: gtrgm
-CREATE OR REPLACE FUNCTION public.gtrgm_union(internal, internal)
- RETURNS gtrgm
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$gtrgm_union$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: handle_new_user
@@ -1051,11 +996,7 @@ $function$
 -- Language: c
 -- Arguments: real
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.set_limit(real)
- RETURNS real
- LANGUAGE c
- STRICT
-AS '$libdir/pg_trgm', $function$set_limit$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: show_limit
@@ -1063,11 +1004,7 @@ AS '$libdir/pg_trgm', $function$set_limit$function$
 -- Language: c
 -- Arguments: 
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.show_limit()
- RETURNS real
- LANGUAGE c
- STABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$show_limit$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: show_trgm
@@ -1075,11 +1012,7 @@ AS '$libdir/pg_trgm', $function$show_limit$function$
 -- Language: c
 -- Arguments: text
 -- Return Type: text[]
-CREATE OR REPLACE FUNCTION public.show_trgm(text)
- RETURNS text[]
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$show_trgm$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: similarity
@@ -1087,11 +1020,7 @@ AS '$libdir/pg_trgm', $function$show_trgm$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.similarity(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$similarity$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: similarity_dist
@@ -1099,11 +1028,7 @@ AS '$libdir/pg_trgm', $function$similarity$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.similarity_dist(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$similarity_dist$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: similarity_op
@@ -1111,11 +1036,7 @@ AS '$libdir/pg_trgm', $function$similarity_dist$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: boolean
-CREATE OR REPLACE FUNCTION public.similarity_op(text, text)
- RETURNS boolean
- LANGUAGE c
- STABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$similarity_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: strict_word_similarity
@@ -1123,11 +1044,7 @@ AS '$libdir/pg_trgm', $function$similarity_op$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.strict_word_similarity(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$strict_word_similarity$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: strict_word_similarity_commutator_op
@@ -1135,11 +1052,7 @@ AS '$libdir/pg_trgm', $function$strict_word_similarity$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: boolean
-CREATE OR REPLACE FUNCTION public.strict_word_similarity_commutator_op(text, text)
- RETURNS boolean
- LANGUAGE c
- STABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$strict_word_similarity_commutator_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: strict_word_similarity_dist_commutator_op
@@ -1147,11 +1060,7 @@ AS '$libdir/pg_trgm', $function$strict_word_similarity_commutator_op$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.strict_word_similarity_dist_commutator_op(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$strict_word_similarity_dist_commutator_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: strict_word_similarity_dist_op
@@ -1159,11 +1068,7 @@ AS '$libdir/pg_trgm', $function$strict_word_similarity_dist_commutator_op$functi
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.strict_word_similarity_dist_op(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$strict_word_similarity_dist_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: strict_word_similarity_op
@@ -1171,11 +1076,7 @@ AS '$libdir/pg_trgm', $function$strict_word_similarity_dist_op$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: boolean
-CREATE OR REPLACE FUNCTION public.strict_word_similarity_op(text, text)
- RETURNS boolean
- LANGUAGE c
- STABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$strict_word_similarity_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: update_fee_payment
@@ -1610,11 +1511,7 @@ AS $function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.word_similarity(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$word_similarity$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: word_similarity_commutator_op
@@ -1622,11 +1519,7 @@ AS '$libdir/pg_trgm', $function$word_similarity$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: boolean
-CREATE OR REPLACE FUNCTION public.word_similarity_commutator_op(text, text)
- RETURNS boolean
- LANGUAGE c
- STABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$word_similarity_commutator_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: word_similarity_dist_commutator_op
@@ -1634,11 +1527,7 @@ AS '$libdir/pg_trgm', $function$word_similarity_commutator_op$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.word_similarity_dist_commutator_op(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$word_similarity_dist_commutator_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: word_similarity_dist_op
@@ -1646,11 +1535,7 @@ AS '$libdir/pg_trgm', $function$word_similarity_dist_commutator_op$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: real
-CREATE OR REPLACE FUNCTION public.word_similarity_dist_op(text, text)
- RETURNS real
- LANGUAGE c
- IMMUTABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$word_similarity_dist_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
 -- Function: word_similarity_op
@@ -1658,10 +1543,6 @@ AS '$libdir/pg_trgm', $function$word_similarity_dist_op$function$
 -- Language: c
 -- Arguments: text, text
 -- Return Type: boolean
-CREATE OR REPLACE FUNCTION public.word_similarity_op(text, text)
- RETURNS boolean
- LANGUAGE c
- STABLE PARALLEL SAFE STRICT
-AS '$libdir/pg_trgm', $function$word_similarity_op$function$
+-- Removed: pg_trgm extension function (provided by CREATE EXTENSION pg_trgm)
 
 
