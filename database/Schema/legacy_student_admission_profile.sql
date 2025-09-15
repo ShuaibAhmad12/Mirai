@@ -1,0 +1,77 @@
+-- Reference ONLY: Legacy student admission/profile/promotion table shapes
+-- This file is NOT a migration. All CREATE statements are commented out to
+-- prevent accidental execution. Use it for mapping during ETL.
+--
+-- Legacy Admissions (wide fee + enrollment + contact)
+-- CREATE TABLE legacy_student_admissions (
+--   student_id integer PRIMARY KEY,
+--   college_id integer,
+--   crsid integer,
+--   ssnid integer,
+--   enrol_id text,
+--   stu_name text,
+--   lateral_entry text,
+--   doj date,
+--   doa date,
+--   contact_no text,
+--   admsn_yr1 numeric, admsn_yr2 numeric, admsn_yr3 numeric,
+--   admsn_yr4 numeric, admsn_yr5 numeric, admsn_yr6 numeric,
+--   security_fee numeric, other_fee numeric,
+--   yr1_fee numeric, yr2_fee numeric, yr3_fee numeric, yr4_fee numeric,
+--   yr5_fee numeric, yr6_fee numeric,
+--   ref_by integer,
+--   is_paid text,
+--   remark text,
+--   is_deleted text,
+--   is_suspended text,
+--   created_at timestamptz,
+--   last_updated_by_id integer,
+--   delete_reason text,
+--   search_vector text
+-- );
+--
+-- Legacy Profiles
+-- CREATE TABLE legacy_student_profiles (
+--   id integer PRIMARY KEY,
+--   mother_name text,
+--   father_name text,
+--   dob date,
+--   gender text,
+--   category text,
+--   nationality text,
+--   permanent_address text,
+--   correspondence_address text,
+--   state text,
+--   id_type text,
+--   id_number text,
+--   parent_phone text,
+--   guardian_phone text,
+--   phone text,
+--   email text,
+--   exam_passed text,
+--   year_of_passing text,
+--   university_board text,
+--   marks_percentage text,
+--   card_1 text, card_2 text, card_3 text, card_4 text,
+--   eno_1 text, eno_2 text, eno_3 text, eno_4 text,
+--   eno_5 text, eno_6 text, eno_7 text, eno_8 text,
+--   is_deleted text,
+--   created_at timestamptz,
+--   last_updated_by_id integer,
+--   student_id integer
+-- );
+--
+-- Legacy Promotions
+-- CREATE TABLE legacy_student_promotions (
+--   id integer PRIMARY KEY,
+--   curr_year integer,
+--   promotion_date date,
+--   status text,
+--   duration integer,
+--   created_at timestamptz,
+--   updated_at timestamptz,
+--   modified_by_id integer,
+--   student_id integer
+-- );
+--
+-- END reference file.

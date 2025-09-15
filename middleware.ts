@@ -2,6 +2,7 @@ import { updateSession } from "@/lib/supabase/middleware";
 import { type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  // Only handle Supabase session management (refresh tokens, auth state)
   return await updateSession(request);
 }
 

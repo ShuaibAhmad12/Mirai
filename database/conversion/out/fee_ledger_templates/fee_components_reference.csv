@@ -1,0 +1,5 @@
+id,code,label,frequency,description,created_at
+1c2c736d-2d77-4956-8b5b-2ad385d032e0,SECURITY,Security Deposit,one_time,Security deposit fee,2024-01-01 00:00:00
+50456145-6cad-4b8c-a05c-22dd74e4a40a,OTHER,Other Charges,one_time,Other miscellaneous charges,2024-01-01 00:00:00
+6dd45f0c-5e4d-4024-8a50-494761a01c33,ADMISSION,Admission Fee,on_admission,Admission processing fee,2024-01-01 00:00:00
+dd3191c9-03de-4595-88a5-a2c3807f99bd,TUITION,Tuition Fee,annual,Annual tuition fee,2024-01-01 00:00:00
