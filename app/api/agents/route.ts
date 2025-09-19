@@ -53,22 +53,31 @@ const CreateAgentSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    console.log('🚀 Starting agent creation...');
+    
     const body = await request.json();
-    const input = CreateAgentSchema.parse(body) as CreateAgentRequest;
+    console.log('📥 Request body:', body);
 
-    const agent = await createAgent(input);
+    const validatedData = CreateAgentSchema.parse(body);
+    console.log('✅ Validated data:', validatedData);
+
+    const agent = await createAgent(validatedData as CreateAgentRequest);
+    console.log('🎉 Created agent:', agent);
+
     return NextResponse.json(agent, { status: 201 });
   } catch (error) {
+    console.error('❌ Detailed error:', error);
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0]?.message || "Validation error" },
         { status: 400 }
       );
     }
+
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Failed to create agent",
+        error: error instanceof Error ? error.message : "Failed to create agent",
       },
       { status: 500 }
     );

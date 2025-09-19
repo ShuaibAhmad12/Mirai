@@ -256,13 +256,13 @@ export default function SessionsPanel() {
     return { label: "Active", variant: "default" as const };
   }
 
-  if (!isHydrated || loading) {
-    return (
-      <Card className="p-6">
-        <div className="text-center py-8">Loading sessions...</div>
-      </Card>
-    );
-  }
+  // if (!isHydrated || loading) {
+  //   return (
+  //     <Card className="p-6">
+  //       <div className="text-center py-8">Loading sessions...</div>
+  //     </Card>
+  //   );
+  // }
 
   return (
     <Card className="p-6 space-y-4">
