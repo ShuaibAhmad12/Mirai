@@ -250,44 +250,68 @@ export async function getAgentById(agentId: string) {
   };
 }
 
-export async function createAgent(
-  data: CreateAgentRequest
-): Promise<AgentWithStats> {
-  const supabase = await createClient();
-
-  // Get user for audit trail
-  let created_by: string | null = null;
+export async function createAgent(data: CreateAgentRequest) {
   try {
-    const { data: userData } = await supabase.auth.getUser();
-    created_by = userData?.user?.id ?? null;
-  } catch {
-    created_by = null;
-  }
+    console.log('🔍 Creating agent with data:', data);
 
-  const { data: agent, error } = await supabase
-    .from("agents")
-    .insert({
+    // Initialize supabase client
+    const supabase = await createClient();
+    
+    // Test connection first
+    console.log('🔗 Testing Supabase connection...');
+    const { data: testData, error: testError } = await supabase
+      .from('agents')
+      .select('count')
+      .limit(1);
+    
+    if (testError) {
+      console.error('❌ Supabase connection test failed:', testError);
+      throw new Error(`Supabase connection failed: ${testError.message}`);
+    }
+    
+    console.log('✅ Supabase connection successful');
+
+    // Prepare the insert data
+    const insertData = {
       name: data.name,
-      email_raw: data.email,
-      email: data.email?.toLowerCase().trim(),
-      phone_raw: data.phone,
-      phone_e164: data.phone, // TODO: Add phone normalization
-      source_channel: data.source_channel,
-      notes: data.notes,
-      status: 1,
-      created_by,
-      updated_by: created_by,
-    })
-    .select()
-    .single();
+      email: data.email || null,
+      phone: data.phone || null,
+      source_channel: data.source_channel || null,
+      notes: data.notes || null,
+    };
 
-  if (error) throw error;
+    console.log('📝 Insert data:', insertData);
 
-  const result = await getAgentById(agent.id);
-  if (!result) throw new Error("Failed to retrieve created agent");
-  return result;
+    const { data: agent, error } = await supabase
+      .from('agents')
+      .insert([insertData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Supabase insert error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw new Error(`Supabase error: ${error.message} (Code: ${error.code})`);
+    }
+
+    console.log('🎉 Agent created successfully:', agent);
+    return agent;
+
+  } catch (error) {
+    console.error('💥 Database error creating agent:', error);
+    
+    // Re-throw the original error with more context
+    if (error instanceof Error) {
+      throw error; // This preserves the original error message
+    }
+    
+    throw new Error('Failed to create agent in database');
+  }
 }
-
 export async function updateAgent(
   id: string,
   data: UpdateAgentRequest

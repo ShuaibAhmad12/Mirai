@@ -65,7 +65,7 @@ export default function CoursesPanel() {
     if (selectedCollegeFilter) {
       filtered = filtered.filter(
         (course) => course.college_id === selectedCollegeFilter
-      );
+      );  
     }
 
     // Filter by search term (course name or college name)

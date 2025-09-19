@@ -377,13 +377,13 @@ export default function CollegesPanel() {
     setIsEditOpen(true);
   }
 
-  if (!isHydrated || loading) {
-    return (
-      <Card className="p-6">
-        <div className="text-center py-8">Loading colleges...</div>
-      </Card>
-    );
-  }
+  // if (!isHydrated || loading) {
+  //   return (
+  //     <Card className="p-6">
+  //       <div className="text-center py-8">Loading colleges...</div>
+  //     </Card>
+  //   );
+  // }
 
   return (
     <Card className="p-6 space-y-4">
