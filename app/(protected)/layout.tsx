@@ -20,7 +20,7 @@ export default function ProtectedLayout({
         <AppSidebar />
         <SidebarInset>
           <div className="flex-1 flex flex-col min-h-screen">
-            <header className="h-14 border-b flex items-center justify-between px-4 gap-4">
+            <header className="h-14 border-b flex items-center justify-between px-4 gap-4 sticky top-0 bg-background">
               <SidebarTrigger />
               <div className="font-semibold tracking-tight">Dashboard</div>
               <div className="flex items-center gap-3">
