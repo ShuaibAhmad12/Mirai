@@ -64,33 +64,35 @@ export function FeesFilters(props: {
                 defaultValue={props.q ?? ""}
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 ml-5">
               <Label htmlFor="college" className="text-xs font-medium">
                 College
               </Label>
               <Select
                 name="college_id"
                 defaultValue={props.college_id ?? "all"}
+
               >
-                <SelectTrigger className="mt-1 h-8">
+                <SelectTrigger className="mt-1 w-full h-8">
                   <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   {props.colleges.map((c) => (
                     <SelectItem key={c.id} value={String(c.id)}>
-                      {c.name}
+                      {c.code ?? "N/A"}
                     </SelectItem>
                   ))}
+
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 ml-5">
               <Label htmlFor="course" className="text-xs font-medium">
                 Course
               </Label>
               <Select name="course_id" defaultValue={props.course_id ?? "all"}>
-                <SelectTrigger className="mt-1 h-8">
+                <SelectTrigger className="mt-1 h-8 w-full">
                   <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
@@ -103,7 +105,7 @@ export function FeesFilters(props: {
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 ml-5">
               <Label htmlFor="session" className="text-xs font-medium">
                 Session
               </Label>
@@ -111,7 +113,7 @@ export function FeesFilters(props: {
                 name="session_id"
                 defaultValue={props.session_id ?? "all"}
               >
-                <SelectTrigger className="mt-1 h-8">
+                <SelectTrigger className="mt-1 h-8 w-full">
                   <SelectValue placeholder="All" />
                 </SelectTrigger>
                 <SelectContent>
@@ -124,7 +126,7 @@ export function FeesFilters(props: {
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 ml-5">
               <Label htmlFor="year" className="text-xs font-medium">
                 Year
               </Label>
@@ -134,7 +136,7 @@ export function FeesFilters(props: {
                   props.current_year ? String(props.current_year) : "any"
                 }
               >
-                <SelectTrigger className="mt-1 h-8">
+                <SelectTrigger className="mt-1 h-8 w-full">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
