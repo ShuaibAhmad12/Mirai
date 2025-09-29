@@ -58,16 +58,16 @@ export default async function StudentsPage({
 
   // Fetch rows for current filters
   const rows = await svcStudentsGrid({
-  q,
-  college_id,
-  course_id,
-  session_id,
-  current_year,
-  sort,
-  order,
-  limit,
-  offset,
-});
+    q,
+    college_id,
+    course_id,
+    session_id,
+    current_year,
+    sort,
+    order,
+    limit,
+    offset,
+  });
 
 
   // Filter courses by selected college to reduce options (UX improvement)
@@ -180,20 +180,24 @@ export default async function StudentsPage({
                 <option value="desc">Descending</option>
               </select>
             </div>
+            <div className="flex justify-between ">
+              <div className="flex items-center mt-5">
+                <Link
+                  href="/students"
+                  className="text-sm text-muted-foreground underline-offset-2 hover:underline"
+                >
+                  Reset filters
+                </Link>
+              </div>
+              <div className="flex items-center mt-5 ">
+                <Button type="submit" variant="default">
+                  Apply
+                </Button>
+              </div>
+            </div>
           </div>
           {/* Reset page on apply */}
           <input type="hidden" name="page" value={1} />
-          <div className="flex items-center justify-between">
-            <Link
-              href="/students"
-              className="text-sm text-muted-foreground underline-offset-2 hover:underline"
-            >
-              Reset filters
-            </Link>
-            <Button type="submit" variant="default">
-              Apply
-            </Button>
-          </div>
         </form>
       </div>
 

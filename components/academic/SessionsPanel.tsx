@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,6 +22,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import {
   createSession,
@@ -292,7 +299,7 @@ export default function SessionsPanel() {
 
       {/* Filters Section */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium">Filters & Search</h3>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground">
@@ -334,7 +341,7 @@ export default function SessionsPanel() {
                 setStatusFilter("all");
                 setSearchTerm("");
               }}
-              className="w-full"
+              className="w-full h-9"
             >
               Clear Filters
             </Button>
@@ -346,12 +353,7 @@ export default function SessionsPanel() {
 
       {/* Add New Session Section */}
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-medium">Session Management</h3>
-          <p className="text-xs text-muted-foreground">
-            Add new academic sessions or manage existing ones
-          </p>
-        </div>
+        
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -430,14 +432,22 @@ export default function SessionsPanel() {
                         : "—"}
                     </TableCell>
                     <TableCell className="text-right">
+                    <TooltipProvider>
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEdit(session)}
-                        >
-                          Edit
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEdit(session)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                         <Button
                           variant="destructive"
                           size="sm"
@@ -449,9 +459,13 @@ export default function SessionsPanel() {
                             })
                           }
                         >
-                          Delete
+                          <Trash2 className="h-4 w-4" />
                         </Button>
+                        </TooltipTrigger>
+                          <TooltipContent>Delete</TooltipContent>
+                        </Tooltip>
                       </div>
+                    </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 );

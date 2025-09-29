@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Pencil, Trash2,Settings } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -591,14 +598,22 @@ export default function FeesPanel() {
                   </TableCell>
                   <TableCell>{component.description || "—"}</TableCell>
                   <TableCell className="text-right">
+                    <TooltipProvider>
                     <div className="flex justify-end gap-2">
+                      <Tooltip>
+                          <TooltipTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => openEditComponent(component)}
                       >
-                        Edit
+                        <Pencil className="h-4 w-4" />
                       </Button>
+                       </TooltipTrigger>
+                          <TooltipContent>Edit</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                       <Button
                         variant="destructive"
                         size="sm"
@@ -606,9 +621,13 @@ export default function FeesPanel() {
                           onDeleteComponent(component.id, component.label)
                         }
                       >
-                        Delete
+                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      </TooltipTrigger>
+                          <TooltipContent>Delete</TooltipContent>
+                        </Tooltip>
                     </div>
+                    </TooltipProvider>
                   </TableCell>
                 </TableRow>
               ))}
@@ -733,32 +752,55 @@ export default function FeesPanel() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedPlanForManagement(plan);
-                          setIsManageItemsOpen(true);
-                        }}
-                      >
-                        Manage Items
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEditPlan(plan)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => onDeletePlan(plan.id, plan.name)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+                    
+                   <div className="flex justify-end gap-2">
+  <TooltipProvider>
+    {/* Manage Items */}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setSelectedPlanForManagement(plan);
+            setIsManageItemsOpen(true);
+          }}
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Manage Items</TooltipContent>
+    </Tooltip>
+
+    {/* Edit */}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => openEditPlan(plan)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Edit</TooltipContent>
+    </Tooltip>
+
+    {/* Delete */}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => onDeletePlan(plan.id, plan.name)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Delete</TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+</div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -1438,14 +1480,22 @@ export default function FeesPanel() {
                           </TableCell>
                           <TableCell>{item.notes || "—"}</TableCell>
                           <TableCell className="text-right">
+                          <TooltipProvider>
                             <div className="flex justify-end gap-2">
+                        <Tooltip>
+                              <TooltipTrigger asChild>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => openEditItem(item)}
                               >
-                                Edit
+                                <Pencil className="h-4 w-4" />
                               </Button>
+                              </TooltipTrigger>
+                          <TooltipContent>Edit</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                               <Button
                                 variant="destructive"
                                 size="sm"
@@ -1456,9 +1506,14 @@ export default function FeesPanel() {
                                   )
                                 }
                               >
-                                Delete
+                                <Trash2 className="h-4 w-4" />
                               </Button>
+                               </TooltipTrigger>
+                          <TooltipContent>Delete</TooltipContent>
+                        </Tooltip>
                             </div>
+                    </TooltipProvider>
+
                           </TableCell>
                         </TableRow>
                       );

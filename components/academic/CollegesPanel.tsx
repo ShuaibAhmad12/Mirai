@@ -30,6 +30,13 @@ import {
 } from "@/lib/api/academic";
 import { College } from "@/lib/types/academic";
 import { useAcademicData } from "@/lib/stores/academic-store";
+import { Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function CollegesPanel() {
   const { colleges, loading, isHydrated, invalidateColleges } =
@@ -110,7 +117,7 @@ export default function CollegesPanel() {
     isOpen: false,
     title: "",
     message: "",
-    action: () => {},
+    action: () => { },
   });
 
   // Validation functions
@@ -250,21 +257,21 @@ export default function CollegesPanel() {
     } catch (error: unknown) {
       const errorMessage =
         error &&
-        typeof error === "object" &&
-        "response" in error &&
-        error.response &&
-        typeof error.response === "object" &&
-        "data" in error.response &&
-        error.response.data &&
-        typeof error.response.data === "object" &&
-        "error" in error.response.data &&
-        error.response.data.error &&
-        typeof error.response.data.error === "object" &&
-        "message" in error.response.data.error
+          typeof error === "object" &&
+          "response" in error &&
+          error.response &&
+          typeof error.response === "object" &&
+          "data" in error.response &&
+          error.response.data &&
+          typeof error.response.data === "object" &&
+          "error" in error.response.data &&
+          error.response.data.error &&
+          typeof error.response.data.error === "object" &&
+          "message" in error.response.data.error
           ? (error.response.data.error.message as string)
           : error instanceof Error
-          ? error.message
-          : "Failed to create college. Please try again.";
+            ? error.message
+            : "Failed to create college. Please try again.";
       toast.error(errorMessage);
       console.error("Create college error:", error);
     }
@@ -413,7 +420,7 @@ export default function CollegesPanel() {
 
       {/* Filters Section */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium">Filters & Search</h3>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground">
@@ -434,7 +441,7 @@ export default function CollegesPanel() {
               onChange={(e) =>
                 setStatusFilter(e.target.value as "all" | "active" | "inactive")
               }
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
             >
               <option value="all">All Colleges</option>
               <option value="active">Active Only</option>
@@ -452,7 +459,7 @@ export default function CollegesPanel() {
                 setStatusFilter("all");
                 setSearchTerm("");
               }}
-              className="w-full"
+              className="w-full h-9"
             >
               Clear Filters
             </Button>
@@ -464,12 +471,7 @@ export default function CollegesPanel() {
 
       {/* Add New College Section */}
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-medium">College Management</h3>
-          <p className="text-xs text-muted-foreground">
-            Add new colleges or manage existing ones
-          </p>
-        </div>
+
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -589,31 +591,57 @@ export default function CollegesPanel() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEdit(college)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          onToggleStatus(college.id, college.status)
-                        }
-                      >
-                        {college.status === 1 ? "Disable" : "Enable"}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => onDelete(college.id, college.name)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+                    <TooltipProvider>
+                      <div className="flex justify-end gap-2">
+                        {/* Edit */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEdit(college)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit</TooltipContent>
+                        </Tooltip>
+
+                        {/* Enable/Disable */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onToggleStatus(college.id, college.status)}
+                            >
+                              {college.status === 1 ? (
+                                <ToggleLeft className="h-4 w-4" />
+                              ) : (
+                                <ToggleRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {college.status === 1 ? "Disable" : "Enable"}
+                          </TooltipContent>
+                        </Tooltip>
+
+                        {/* Delete */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => onDelete(college.id, college.name)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
                   </TableCell>
                 </TableRow>
               ))}

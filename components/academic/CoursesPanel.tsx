@@ -25,7 +25,13 @@ import { Badge } from "@/components/ui/badge";
 import { createCourse, updateCourse, deleteCourse } from "@/lib/api/academic";
 import { toast } from "sonner";
 import { useAcademicData } from "@/lib/stores/academic-store";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Pencil, Trash2 } from "lucide-react";
 export default function CoursesPanel() {
   const { colleges, courses, loading, isHydrated, invalidateCourses } =
     useAcademicData();
@@ -214,7 +220,7 @@ export default function CoursesPanel() {
 
       {/* Filters Section */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium">Filters & Search</h3>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground">
@@ -255,7 +261,7 @@ export default function CoursesPanel() {
                 setSelectedCollegeFilter("");
                 setSearchTerm("");
               }}
-              className="w-full"
+              className="w-full h-9"
             >
               Clear Filters
             </Button>
@@ -267,12 +273,7 @@ export default function CoursesPanel() {
 
       {/* Add New Course Section */}
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-medium">Course Management</h3>
-          <p className="text-xs text-muted-foreground">
-            Add new courses or manage existing ones
-          </p>
-        </div>
+        
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -366,22 +367,35 @@ export default function CoursesPanel() {
                         )}
                       </div>
                     </TableCell>
+                    
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEdit(course)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => onDelete(course.id, course.name)}
-                        >
-                          Delete
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEdit(course)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit</TooltipContent>
+                        </Tooltip>
+
+                          
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => onDelete(course.id, course.name)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete</TooltipContent>
+                        </Tooltip>
                       </div>
                     </TableCell>
                   </TableRow>

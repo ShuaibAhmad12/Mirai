@@ -84,15 +84,17 @@ export function AdmissionsFilters({
             </select>
           </div>
           {/* Future: college/course/session filters */}
-        </div>
-        <div className="flex items-center justify-between">
-          <a
-            href="/admissions"
-            className="text-sm text-muted-foreground underline-offset-2 hover:underline"
-          >
-            Reset filters
-          </a>
-          <Button type="submit">Apply</Button>
+          <div className="flex items-center mt-5 ml-4 justify-between">
+            <a
+              href="/admissions"
+              className="text-sm text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Reset filters
+            </a>
+          </div>
+          <div className="flex justify-end items-center mt-5">
+            <Button type="submit">Apply</Button>
+          </div>
         </div>
       </form>
     </div>

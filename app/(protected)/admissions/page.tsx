@@ -4,7 +4,9 @@ import {
   AdmissionsTable,
 } from "@/components/admissions";
 import type { AdmissionApplication } from "@/components/admissions";
-
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 // Placeholder server actions / data fetchers to be integrated later.
@@ -46,8 +48,17 @@ export default async function AdmissionsPage({
 
   return (
     <div className="space-y-6">
-      <AdmissionsFilters options={options} initial={{ q, status, source }} />
+      
       <AdmissionsStats rows={rows} />
+      <AdmissionsFilters options={options} initial={{ q, status, source }} />
+      <div className="flex justify-end mr-2">
+        <Link href="/admissions/new">
+          <Button type="button" >
+            <Plus className="h-4 w-4" />
+            Add Addmision
+          </Button>
+        </Link>
+      </div>
       <AdmissionsTable rows={rows} />
       {/* Pagination placeholder */}
       <div className="flex items-center justify-end gap-2">
