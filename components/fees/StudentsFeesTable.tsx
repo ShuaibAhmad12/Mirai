@@ -29,6 +29,7 @@ export function StudentsFeesTable({ rows }: { rows: StudentGridRow[] }) {
   const [collectFor, setCollectFor] = React.useState<StudentGridRow | null>(
     null
   );
+  console.log("Rows received in Fees Table:", rows);
 
   const formatCurrency = React.useMemo(() => {
     const fmt = new Intl.NumberFormat("en-IN", {

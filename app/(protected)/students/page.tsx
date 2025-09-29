@@ -57,19 +57,18 @@ export default async function StudentsPage({
   const years = ["1", "2", "3", "4", "5"]; // current year options
 
   // Fetch rows for current filters
-  const rows = hasActiveFilter
-    ? await svcStudentsGrid({
-        q,
-        college_id,
-        course_id,
-        session_id,
-        current_year,
-        sort,
-        order,
-        limit,
-        offset,
-      })
-    : [];
+  const rows = await svcStudentsGrid({
+  q,
+  college_id,
+  course_id,
+  session_id,
+  current_year,
+  sort,
+  order,
+  limit,
+  offset,
+});
+
 
   // Filter courses by selected college to reduce options (UX improvement)
   const courseOptions = college_id
@@ -103,7 +102,7 @@ export default async function StudentsPage({
                 <option value="">All</option>
                 {colleges.map((c) => (
                   <option key={c.id} value={String(c.id)}>
-                    {c.name}
+                    {c.code}
                   </option>
                 ))}
               </select>

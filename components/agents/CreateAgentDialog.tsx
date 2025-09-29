@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 
 interface CreateAgentDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onAgentCreated: () => void;
 }
 
@@ -45,8 +47,11 @@ const SOURCE_CHANNELS = [
   "other",
 ];
 
-export function CreateAgentDialog({ onAgentCreated }: CreateAgentDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreateAgentDialog({
+  open,
+  onOpenChange,
+  onAgentCreated,
+}: CreateAgentDialogProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState<FormData>({
@@ -84,9 +89,7 @@ export function CreateAgentDialog({ onAgentCreated }: CreateAgentDialogProps) {
 
       const response = await fetch("/api/agents", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -96,7 +99,7 @@ export function CreateAgentDialog({ onAgentCreated }: CreateAgentDialogProps) {
       }
 
       resetForm();
-      setOpen(false);
+      onOpenChange(false);
       onAgentCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create agent");
@@ -104,15 +107,12 @@ export function CreateAgentDialog({ onAgentCreated }: CreateAgentDialogProps) {
       setLoading(false);
     }
   };
+  function setOpen(arg0: boolean): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Agent
-        </Button>
-      </DialogTrigger>
+     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -204,10 +204,10 @@ export function CreateAgentDialog({ onAgentCreated }: CreateAgentDialogProps) {
           </div>
 
           <DialogFooter>
-            <Button
+             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
               disabled={loading}
             >
               Cancel

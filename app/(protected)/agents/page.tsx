@@ -146,6 +146,13 @@ export default function AgentsPage() {
             <Plus className="h-4 w-4 mr-2" />
             Add Agent
           </Button>
+
+          <CreateAgentDialog
+            open={createDialogOpen}
+            onOpenChange={setCreateDialogOpen}
+            onAgentCreated={handleAgentCreated}
+          />
+
         </div>
       </div>
 
@@ -196,7 +203,11 @@ export default function AgentsPage() {
 
       {/* Create Agent Dialog */}
       {createDialogOpen && (
-        <CreateAgentDialog onAgentCreated={handleAgentCreated} />
+        <CreateAgentDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onAgentCreated={handleAgentCreated}
+        />
       )}
     </div>
   );
