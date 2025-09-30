@@ -26,34 +26,34 @@ import {
 
 type Row = Record<string, unknown>;
 
-type Column = {
-  key: string;
-  label: string;
-  align?: "left" | "right" | "center";
-  widthClass?: string;
-};
+// type Column = {
+//   key: string;
+//   label: string;
+//   align?: "left" | "right" | "center";
+//   widthClass?: string;
+// };
 
-const ALL_COLUMNS: Column[] = [
-  { key: "student_col", label: "Student", widthClass: "min-w-[220px]" },
-  { key: "parent_col", label: "Parent", widthClass: "min-w-[200px]" },
-  { key: "program_col", label: "Program", widthClass: "min-w-[240px]" },
-  {
-    key: "balances_col",
-    label: "Balances",
-    align: "right",
-    widthClass: "min-w-[220px]",
-  },
-  {
-    key: "actions_col",
-    label: "Actions",
-    align: "center",
-    widthClass: "min-w-[140px]",
-  },
-];
+// const ALL_COLUMNS: Column[] = [
+//   { key: "student_col", label: "Student", widthClass: "min-w-[220px]" },
+//   { key: "parent_col", label: "Parent", widthClass: "min-w-[200px]" },
+//   { key: "program_col", label: "Program", widthClass: "min-w-[240px]" },
+//   {
+//     key: "balances_col",
+//     label: "Balances",
+//     align: "right",
+//     widthClass: "min-w-[220px]",
+//   },
+//   {
+//     key: "actions_col",
+//     label: "Actions",
+//     align: "center",
+//     widthClass: "min-w-[140px]",
+//   },
+// ];
 
 export function StudentsTable({ rows }: { rows: Row[] }) {
   const router = useRouter();
-  const columns = ALL_COLUMNS;
+
 
   // Helpers
   const formatCurrency = React.useMemo(() => {
@@ -84,30 +84,30 @@ export function StudentsTable({ rows }: { rows: Row[] }) {
   }, [rows]);
 
   // Generic renderer for any simple field (fallback)
-  const renderCell = (key: string, value: unknown) => {
-    if (key === "enrollment_code") {
-      return <span className="font-mono text-xs">{String(value ?? "-")}</span>;
-    }
-    if (
-      key === "previous_balance" ||
-      key === "current_due" ||
-      key === "total_outstanding"
-    ) {
-      const n = typeof value === "number" ? value : Number(value ?? 0);
-      const tone =
-        n < 0
-          ? "text-emerald-600"
-          : n > 0
-          ? "text-red-600"
-          : "text-muted-foreground";
-      return <span className={tone}>{formatCurrency(n)}</span>;
-    }
-    if (key === "current_year" || key === "course_duration") {
-      const n = typeof value === "number" ? value : Number(value ?? 0);
-      return isFinite(n) && n > 0 ? `${n} yr` : "-";
-    }
-    return String(value ?? "-");
-  };
+  // const renderCell = (key: string, value: unknown) => {
+  //   if (key === "enrollment_code") {
+  //     return <span className="font-mono text-xs">{String(value ?? "-")}</span>;
+  //   }
+  //   if (
+  //     key === "previous_balance" ||
+  //     key === "current_due" ||
+  //     key === "total_outstanding"
+  //   ) {
+  //     const n = typeof value === "number" ? value : Number(value ?? 0);
+  //     const tone =
+  //       n < 0
+  //         ? "text-emerald-600"
+  //         : n > 0
+  //         ? "text-red-600"
+  //         : "text-muted-foreground";
+  //     return <span className={tone}>{formatCurrency(n)}</span>;
+  //   }
+  //   if (key === "current_year" || key === "course_duration") {
+  //     const n = typeof value === "number" ? value : Number(value ?? 0);
+  //     return isFinite(n) && n > 0 ? `${n} yr` : "-";
+  //   }
+  //   return String(value ?? "-");
+  // };
 
   return (
     <div className="space-y-4">

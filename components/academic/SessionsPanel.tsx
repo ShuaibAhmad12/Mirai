@@ -68,7 +68,7 @@ function getEmptyFormErrors() {
 }
 
 export default function SessionsPanel() {
-  const { sessions, loading, isHydrated, invalidateSessions } =
+  const { sessions, invalidateSessions } =
     useAcademicData();
 
   const [form, setForm] = useState(getEmptyForm());

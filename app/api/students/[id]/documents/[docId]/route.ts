@@ -6,8 +6,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; docId: string }> }
 ) {
   try {
-    const { id, docId } = await params;
-    const studentId = id;
+    const { docId } = await params;
+    // const studentId = id;
     const updates = await request.json();
 
     const updatedDocument = await studentService.updateStudentDocument(

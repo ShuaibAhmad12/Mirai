@@ -28,7 +28,7 @@ import { useAcademicData } from "@/lib/stores/academic-store";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
+  
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Pencil, Trash2 } from "lucide-react";

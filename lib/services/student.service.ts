@@ -69,7 +69,9 @@ export interface StudentInternalRef {
   raw_value?: string;
   created_at: string;
 }
-
+type StudentDocumentUpdate = Partial<
+  Omit<StudentDocument, "id" | "student_id" | "created_at" | "updated_at">
+>;
 export class StudentService {
   private async getSupabase() {
     return await createClient();
@@ -115,12 +117,12 @@ export class StudentService {
 
     if (error) throw error;
 
-    const permanent = (data || []).find(
-      (addr: any) => addr.addr_type === "permanent"
+    const addresses = (data || []) as StudentAddress[];
+    const permanent = addresses.find((addr) => addr.addr_type === "permanent");
+    const correspondence = addresses.find(
+      (addr) => addr.addr_type === "correspondence"
     );
-    const correspondence = (data || []).find(
-      (addr: any) => addr.addr_type === "correspondence"
-    );
+
 
     return { permanent, correspondence };
   }
@@ -179,7 +181,7 @@ export class StudentService {
 
   async updateStudentDocument(
     documentId: string,
-    updates: any
+    updates: StudentDocumentUpdate
   ): Promise<StudentDocument> {
     const supabase = await this.getSupabase();
     const { data, error } = await supabase
@@ -246,8 +248,10 @@ export class StudentService {
 
     if (error) throw error;
 
-    const cards = (data || []).filter((ref: any) => ref.ref_group === "card");
-    const enos = (data || []).filter((ref: any) => ref.ref_group === "eno");
+    const refs = (data || []) as StudentInternalRef[];
+    const cards = refs.filter((ref) => ref.ref_group === "card");
+    const enos = refs.filter((ref) => ref.ref_group === "eno");
+
 
     return { cards, enos };
   }

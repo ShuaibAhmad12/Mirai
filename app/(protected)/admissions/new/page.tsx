@@ -198,7 +198,7 @@ export default function NewAdmissionPage() {
     });
 
     setFeeStructure(updatedStructure);
-  }, [payload.entry_type]); // Only trigger when entry_type changes
+  }, [payload.entry_type, feeStructure]); // Only trigger when entry_type changes
 
   async function handlePreview() {
     setError(null);

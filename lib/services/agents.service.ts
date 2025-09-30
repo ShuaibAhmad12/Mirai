@@ -259,7 +259,7 @@ export async function createAgent(data: CreateAgentRequest) {
     
     // Test connection first
     console.log('🔗 Testing Supabase connection...');
-    const { data: testData, error: testError } = await supabase
+    const { error: testError } = await supabase
       .from('agents')
       .select('count')
       .limit(1);

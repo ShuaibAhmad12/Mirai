@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import { svcCreateCourse, svcListCourses } from "@/lib/services/academic";
+// import { z } from "zod";
+import {  svcListCourses } from "@/lib/services/academic";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -14,13 +14,13 @@ export async function GET() {
   }
 }
 
-const CreateCourseSchema = z.object({
-  college_id: z.string().uuid(),
-  college_code: z.string().min(1),
-  course_identity: z.string().min(1),
-  name: z.string().min(1),
-  duration: z.number().int().min(1).nullable().optional(),
-});
+// const CreateCourseSchema = z.object({
+//   college_id: z.string().uuid(),
+//   college_code: z.string().min(1),
+//   course_identity: z.string().min(1),
+//   name: z.string().min(1),
+//   duration: z.number().int().min(1).nullable().optional(),
+// });
 
 export async function POST(request: Request) {
   try {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const supabase = await createClient();
 
     // Test connection to courses table
-    const { data: testData, error: testError } = await supabase
+    const {  error: testError } = await supabase
       .from('courses')
       .select('count')
       .limit(1);

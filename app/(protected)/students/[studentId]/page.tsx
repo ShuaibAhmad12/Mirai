@@ -3,16 +3,18 @@ import { StudentProfile } from "@/components/students/student-profile";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     studentId: string;
-  };
+  }>;
 }
 
-export default function StudentProfilePage({ params }: PageProps) {
+export default async function StudentProfilePage({ params }: PageProps) {
+  const { studentId } = await params;
+  
   return (
     <div className="container mx-auto p-6">
       <Suspense fallback={<StudentProfileSkeleton />}>
-        <StudentProfile studentId={params.studentId} />
+        <StudentProfile studentId={studentId} />
       </Suspense>
     </div>
   );

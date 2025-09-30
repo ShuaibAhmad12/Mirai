@@ -1,6 +1,6 @@
 "use client";
 
-import { TestPaymentAction } from "@/components/fees/test-payment-action";
+import TestPaymentAction from "../../components/fees/test-payment-action";
 
 export default function TestPaymentPage() {
   return (

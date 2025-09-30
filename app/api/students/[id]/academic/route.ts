@@ -31,16 +31,15 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  // { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const studentId = id;
+    // const { id } = await params;
+    // const studentId = id;
     const updates = await request.json();
 
     // Handle different types of academic updates
     const updatedData = await enrollmentService.updateAcademicInfo(
-      studentId,
       updates
     );
 

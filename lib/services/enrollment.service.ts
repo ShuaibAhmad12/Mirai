@@ -42,7 +42,11 @@ export interface PriorEducation {
   created_at: string;
   updated_at: string;
 }
-
+interface AcademicUpdateResult {
+  success: boolean;
+  message: string;
+}
+  type AcademicUpdatePayload = Record<string, unknown>;
 export class EnrollmentService {
   private async getSupabase() {
     return await createClient();
@@ -110,7 +114,7 @@ export class EnrollmentService {
     if (!enrichedData) return null;
 
     // Get current year from progressions
-    const { data: progressionData, error: progressionError } = await supabase
+    const { data: progressionData } = await supabase
       .from("student_progressions")
       .select("to_year, course_duration")
       .eq("enrollment_id", data.enrollment_id)
@@ -118,9 +122,9 @@ export class EnrollmentService {
       .limit(1)
       .maybeSingle(); // Use maybeSingle() instead of single() to handle no records
 
-    const course = enrichedData.courses as any;
-    const college = course?.colleges as any;
-    const session = enrichedData.academic_sessions as any;
+    const course = Array.isArray(enrichedData.courses) ? enrichedData.courses[0] : enrichedData.courses;
+    const college = course?.colleges ? (Array.isArray(course.colleges) ? course.colleges[0] : course.colleges) : undefined;
+    const session = enrichedData.academic_sessions as { id?: string; title?: string } | { id?: string; title?: string }[] | null;
 
     // Calculate current year based on progression or entry type
     let currentYear: number;
@@ -143,8 +147,8 @@ export class EnrollmentService {
       college_id: college?.id || "",
       college_name: college?.name || "",
       college_code: college?.code || "",
-      session_id: enrichedData.session_id || "",
-      session_title: session?.title || "",
+      session_id: Array.isArray(session) ? session[0]?.id || "" : session?.id || "",
+      session_title: Array.isArray(session) ? session[0]?.title || "" : session?.title || "",
       enrollment_code: enrichedData.enrollment_code || "",
       enrollment_date: enrichedData.enrollment_date,
       joining_date: enrichedData.joining_date,
@@ -241,14 +245,10 @@ export class EnrollmentService {
     if (error) throw error;
   }
 
-  async updateAcademicInfo(studentId: string, updates: any): Promise<any> {
-    const supabase = await this.getSupabase();
-
-    // For now, just handle basic academic history notes updates
-    // In a real app, you'd parse the field names to determine which table to update
+  async updateAcademicInfo(
+    updates: AcademicUpdatePayload
+  ): Promise<AcademicUpdateResult> {
     console.log("Academic updates:", updates);
-
-    // Return success for now - you can implement specific table updates based on field names
     return { success: true, message: "Academic info updated successfully" };
   }
 }

@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+
 
 interface CreateAgentDialogProps {
   open: boolean;
@@ -107,9 +107,9 @@ export function CreateAgentDialog({
       setLoading(false);
     }
   };
-  function setOpen(arg0: boolean): void {
-    throw new Error("Function not implemented.");
-  }
+  // function setOpen(arg0: boolean): void {
+  //   throw new Error("Function not implemented.");
+  // }
 
   return (
      <Dialog open={open} onOpenChange={onOpenChange}>

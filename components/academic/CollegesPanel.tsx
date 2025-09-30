@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function CollegesPanel() {
-  const { colleges, loading, isHydrated, invalidateColleges } =
+  const { colleges,  invalidateColleges } =
     useAcademicData();
 
   // Helper function for empty form state
