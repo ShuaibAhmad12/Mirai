@@ -274,13 +274,13 @@ export default function SessionsPanel() {
   return (
     <Card className="p-6 space-y-4">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+        {/* <div>
           <h2 className="text-xl font-semibold">Academic Sessions</h2>
           <p className="text-sm text-muted-foreground">
             Manage academic years and session periods
           </p>
-        </div>
+        </div> */}
         <div className="flex items-center gap-4">
           <div className="text-right">
             <p className="text-2xl font-bold text-primary">{sessions.length}</p>
@@ -295,77 +295,75 @@ export default function SessionsPanel() {
         </div>
       </div>
 
-      <Separator />
 
-      {/* Filters Section */}
-      <div className="space-y-4">
+      <div className="flex justify-between items-end">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Search Sessions
-            </label>
-            <Input
-              placeholder="Search by title..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Status Filter
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(
-                  e.target.value as "all" | "current" | "past" | "future"
-                )
-              }
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-            >
-              <option value="all">All Sessions</option>
-              <option value="current">Current Session</option>
-              <option value="past">Past Sessions</option>
-              <option value="future">Future Sessions</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Quick Actions
-            </label>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setStatusFilter("all");
-                setSearchTerm("");
-              }}
-              className="w-full h-9"
-            >
-              Clear Filters
-            </Button>
+        {/* Filters Section */}
+        <div className="space-y-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">
+                Search Sessions
+              </label>
+              <Input
+                placeholder="Search by title..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">
+                Status Filter
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(
+                    e.target.value as "all" | "current" | "past" | "future"
+                  )
+                }
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              >
+                <option value="all">All Sessions</option>
+                <option value="current">Current Session</option>
+                <option value="past">Past Sessions</option>
+                <option value="future">Future Sessions</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setStatusFilter("all");
+                  setSearchTerm("");
+                }}
+                className="w-1/2 h-9"
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <Separator />
+        {/* Add New Session Section */}
+        <div className="flex items-center justify-between">
 
-      {/* Add New Session Section */}
-      <div className="flex items-center justify-between">
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => invalidateSessions()}
-            className="shrink-0"
-          >
-            🔄 Refresh
-          </Button>
-          <Button onClick={() => setIsAddOpen(true)} className="shrink-0">
-            + Add Session
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              // size="sm"
+              onClick={() => invalidateSessions()}
+              className="shrink-0"
+            >
+              🔄 Refresh
+            </Button>
+            <Button onClick={() => setIsAddOpen(true)} className="shrink-0">
+              + Add Session
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -407,7 +405,7 @@ export default function SessionsPanel() {
                 const endDate = new Date(session.end_date);
                 const durationDays = Math.ceil(
                   (endDate.getTime() - startDate.getTime()) /
-                    (1000 * 60 * 60 * 24)
+                  (1000 * 60 * 60 * 24)
                 );
 
                 return (
@@ -432,40 +430,40 @@ export default function SessionsPanel() {
                         : "—"}
                     </TableCell>
                     <TableCell className="text-right">
-                    <TooltipProvider>
-                      <div className="flex justify-end gap-2">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openEdit(session)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Edit</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() =>
-                            setConfirmDialog({
-                              open: true,
-                              sessionId: session.id,
-                              sessionTitle: session.title,
-                            })
-                          }
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        </TooltipTrigger>
-                          <TooltipContent>Delete</TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </TooltipProvider>
+                      <TooltipProvider>
+                        <div className="flex justify-end gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEdit(session)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() =>
+                                  setConfirmDialog({
+                                    open: true,
+                                    sessionId: session.id,
+                                    sessionTitle: session.title,
+                                  })
+                                }
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete</TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 );

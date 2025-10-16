@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export default function CollegesPanel() {
-  const { colleges,  invalidateColleges } =
+  const { colleges, invalidateColleges } =
     useAcademicData();
 
   // Helper function for empty form state
@@ -395,13 +395,13 @@ export default function CollegesPanel() {
   return (
     <Card className="p-6 space-y-4">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+        {/* <div>
           <h2 className="text-xl font-semibold">College Management</h2>
           <p className="text-sm text-muted-foreground">
             Manage educational institutions and their details
           </p>
-        </div>
+        </div> */}
         <div className="flex items-center gap-4">
           <div className="text-right">
             <p className="text-2xl font-bold text-primary">{colleges.length}</p>
@@ -416,76 +416,77 @@ export default function CollegesPanel() {
         </div>
       </div>
 
-      <Separator />
+      {/* <Separator /> */}
 
       {/* Filters Section */}
-      <div className="space-y-4">
+      <div className="flex justify-between items-end">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">
+                Search Colleges
+              </label>
+              <Input
+                placeholder="Search by name or code..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">
+                Status Filter
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as "all" | "active" | "inactive")
+                }
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              >
+                <option value="all">All Colleges</option>
+                <option value="active">Active Only</option>
+                <option value="inactive">Inactive Only</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              {/* <label className="text-xs font-medium text-muted-foreground">
+                Quick Actions
+              </label> */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setStatusFilter("all");
+                  setSearchTerm("");
+                }}
+                className="w-1/2 h-9"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Search Colleges
-            </label>
-            <Input
-              placeholder="Search by name or code..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Status Filter
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value as "all" | "active" | "inactive")
-              }
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-            >
-              <option value="all">All Colleges</option>
-              <option value="active">Active Only</option>
-              <option value="inactive">Inactive Only</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Quick Actions
-            </label>
+          <div className="flex gap-2">
             <Button
               variant="outline"
-              size="sm"
-              onClick={() => {
-                setStatusFilter("all");
-                setSearchTerm("");
-              }}
-              className="w-full h-9"
+              // size="sm"
+              onClick={() => invalidateColleges()}
+              className="shrink-0 cursor-pointer"
             >
-              Clear Filters
+              🔄 Refresh
+            </Button>
+            <Button onClick={() => setIsAddOpen(true)} className="shrink-0 cursor-pointer">
+              + Add College
             </Button>
           </div>
         </div>
       </div>
 
-      <Separator />
+      {/* <Separator /> */}
 
       {/* Add New College Section */}
-      <div className="flex items-center justify-between">
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => invalidateColleges()}
-            className="shrink-0"
-          >
-            🔄 Refresh
-          </Button>
-          <Button onClick={() => setIsAddOpen(true)} className="shrink-0">
-            + Add College
-          </Button>
-        </div>
-      </div>
 
       <Separator />
 
@@ -513,7 +514,7 @@ export default function CollegesPanel() {
                 <TableHead>College Name</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Affiliation</TableHead>
-                <TableHead className="text-right">Next Admission No.</TableHead>
+                <TableHead className="text-center">Next Admission No.</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -580,12 +581,13 @@ export default function CollegesPanel() {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-mono">
+                  <TableCell className="text-center font-mono">
                     {college.admission_number?.toString() ?? "—"}
                   </TableCell>
                   <TableCell>
                     <Badge
                       variant={college.status === 1 ? "default" : "secondary"}
+                      className={`${college.status === 1 ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-red-100 text-red-800 hover:bg-green-100"} hover:!bg-none`}
                     >
                       {college.status === 1 ? "Active" : "Inactive"}
                     </Badge>

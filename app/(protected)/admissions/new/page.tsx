@@ -172,33 +172,27 @@ export default function NewAdmissionPage() {
 
   // Update fee structure when entry type changes (for existing fee structure)
   React.useEffect(() => {
-    if (feeStructure.length === 0) return; // No fee structure loaded yet
+    if (feeStructure.length === 0) return;
 
     const isLateralEntry = payload.entry_type === "lateral";
+    setFeeStructure((prev) =>
+      prev.map((fee) => {
+        const isYear1 = fee.year_number === 1;
+        const shouldZeroOut = isLateralEntry && isYear1;
 
-    // Update existing fee structure based on entry type
-    const updatedStructure = feeStructure.map((fee) => {
-      const isYear1 = fee.year_number === 1;
-      const shouldZeroOut = isLateralEntry && isYear1;
-
-      return {
-        ...fee,
-        course_fee: shouldZeroOut
-          ? 0
-          : fee.course_fee === 0
-          ? fee.course_fee
-          : Math.max(0, fee.course_fee),
-        actual_fee: shouldZeroOut
-          ? 0
-          : fee.actual_fee === 0
-          ? fee.actual_fee
-          : Math.max(0, fee.actual_fee),
-        is_lateral_entry_locked: shouldZeroOut,
-      };
-    });
-
-    setFeeStructure(updatedStructure);
-  }, [payload.entry_type, feeStructure]); // Only trigger when entry_type changes
+        return {
+          ...fee,
+          course_fee: shouldZeroOut
+            ? 0
+            : Math.max(0, fee.course_fee),
+          actual_fee: shouldZeroOut
+            ? 0
+            : Math.max(0, fee.actual_fee),
+          is_lateral_entry_locked: shouldZeroOut,
+        };
+      })
+    );
+  }, [payload.entry_type]);
 
   async function handlePreview() {
     setError(null);
@@ -675,9 +669,9 @@ export default function NewAdmissionPage() {
                                 className={cn(
                                   "border-t hover:bg-muted/20",
                                   fee.course_fee === 0 &&
-                                    "bg-slate-50/50 dark:bg-slate-800/50",
+                                  "bg-slate-50/50 dark:bg-slate-800/50",
                                   section === "additional" &&
-                                    "bg-blue-50/30 dark:bg-blue-950/20"
+                                  "bg-blue-50/30 dark:bg-blue-950/20"
                                 )}
                               >
                                 <td className="px-4 py-3">
@@ -686,7 +680,7 @@ export default function NewAdmissionPage() {
                                       className={cn(
                                         "font-medium text-sm",
                                         fee.course_fee === 0 &&
-                                          "text-muted-foreground"
+                                        "text-muted-foreground"
                                       )}
                                     >
                                       {fee.component_name}
@@ -707,16 +701,16 @@ export default function NewAdmissionPage() {
                                       )}
                                       {(fee.component_code === "SECURITY" ||
                                         fee.component_code === "OTHER") && (
-                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                                          +Add
-                                        </span>
-                                      )}
+                                          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                                            +Add
+                                          </span>
+                                        )}
                                       {(fee.component_code === "TUITION" ||
                                         fee.component_code === "ADMISSION") && (
-                                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
-                                          -Discount
-                                        </span>
-                                      )}
+                                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+                                            -Discount
+                                          </span>
+                                        )}
                                       {fee.year_number && (
                                         <span>Year {fee.year_number}</span>
                                       )}
@@ -750,9 +744,9 @@ export default function NewAdmissionPage() {
                                         const actualFee = isAdditionalFee
                                           ? fee.course_fee + adjustment // Addition for SECURITY/OTHER
                                           : Math.max(
-                                              0,
-                                              fee.course_fee - adjustment
-                                            ); // Subtraction for TUITION/ADMISSION
+                                            0,
+                                            fee.course_fee - adjustment
+                                          ); // Subtraction for TUITION/ADMISSION
 
                                         newStructure[originalIndex] = {
                                           ...fee,
@@ -764,12 +758,12 @@ export default function NewAdmissionPage() {
                                       className={cn(
                                         "w-24 text-right font-mono text-sm",
                                         fee.is_lateral_entry_locked &&
-                                          "bg-gray-100 text-gray-500"
+                                        "bg-gray-100 text-gray-500"
                                       )}
                                       min="0"
                                       placeholder={
                                         fee.component_code === "SECURITY" ||
-                                        fee.component_code === "OTHER"
+                                          fee.component_code === "OTHER"
                                           ? "Add amount"
                                           : "Discount"
                                       }

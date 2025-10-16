@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -71,7 +72,7 @@ export default function CoursesPanel() {
     if (selectedCollegeFilter) {
       filtered = filtered.filter(
         (course) => course.college_id === selectedCollegeFilter
-      );  
+      );
     }
 
     // Filter by search term (course name or college name)
@@ -157,8 +158,7 @@ export default function CoursesPanel() {
   async function onDelete(id: string, courseName?: string) {
     if (
       !confirm(
-        `Are you sure you want to delete ${
-          courseName ? `"${courseName}"` : "this course"
+        `Are you sure you want to delete ${courseName ? `"${courseName}"` : "this course"
         }? This action cannot be undone.`
       )
     )
@@ -195,13 +195,13 @@ export default function CoursesPanel() {
   return (
     <Card className="p-6 space-y-4">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
+        {/* <div>
           <h2 className="text-xl font-semibold">Course Management</h2>
           <p className="text-sm text-muted-foreground">
             Manage course catalog and academic programs
           </p>
-        </div>
+        </div> */}
         <div className="flex items-center gap-4">
           <div className="text-right">
             <p className="text-2xl font-bold text-primary">{courses.length}</p>
@@ -216,76 +216,71 @@ export default function CoursesPanel() {
         </div>
       </div>
 
-      <Separator />
 
       {/* Filters Section */}
-      <div className="space-y-4">
+      <div className="flex justify-between items-end">
+        <div className="space-y-4">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Search Courses
-            </label>
-            <Input
-              placeholder="Search by course name, identity, or college..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Filter by College
-            </label>
-            <select
-              className="w-full border rounded-md px-3 py-2 text-sm bg-background"
-              value={selectedCollegeFilter}
-              onChange={(e) => setSelectedCollegeFilter(e.target.value)}
-            >
-              <option value="">All Colleges</option>
-              {colleges.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.code ? `${c.code} - ${c.name}` : c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Quick Actions
-            </label>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedCollegeFilter("");
-                setSearchTerm("");
-              }}
-              className="w-full h-9"
-            >
-              Clear Filters
-            </Button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">
+                Search Courses
+              </label>
+              <Input
+                placeholder="Search by course name, identity, or college..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">
+                Filter by College
+              </label>
+              <select
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                value={selectedCollegeFilter}
+                onChange={(e) => setSelectedCollegeFilter(e.target.value)}
+              >
+                <option value="">All Colleges</option>
+                {colleges.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.code ? `${c.code} - ${c.name}` : c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedCollegeFilter("");
+                  setSearchTerm("");
+                }}
+                className="w-1/2 h-9"
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <Separator />
+        {/* Add New Course Section */}
+        <div className="flex items-center justify-between">
 
-      {/* Add New Course Section */}
-      <div className="flex items-center justify-between">
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => invalidateCourses()}
-            className="shrink-0"
-          >
-            🔄 Refresh
-          </Button>
-          <Button onClick={() => setIsAddOpen(true)} className="shrink-0">
-            + Add Course
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              // size="sm"
+              onClick={() => invalidateCourses()}
+              className="shrink-0"
+            >
+              🔄 Refresh
+            </Button>
+            <Button onClick={() => setIsAddOpen(true)} className="shrink-0">
+              + Add Course
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -367,7 +362,7 @@ export default function CoursesPanel() {
                         )}
                       </div>
                     </TableCell>
-                    
+
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Tooltip>
@@ -383,7 +378,7 @@ export default function CoursesPanel() {
                           <TooltipContent>Edit</TooltipContent>
                         </Tooltip>
 
-                          
+
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

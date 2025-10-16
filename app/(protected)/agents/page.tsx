@@ -124,37 +124,9 @@ export default function AgentsPage() {
   ];
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="flex-1 space-y-6 p-2">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Agents</h1>
-          <p className="text-muted-foreground">
-            Manage recruitment agents and track their performance
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Agent
-          </Button>
-
-          <CreateAgentDialog
-            open={createDialogOpen}
-            onOpenChange={setCreateDialogOpen}
-            onAgentCreated={handleAgentCreated}
-          />
-
-        </div>
-      </div>
+      
 
       {/* Statistics */}
       {!statsLoading && <AgentStats stats={stats || defaultStats} />}
@@ -174,13 +146,36 @@ export default function AgentsPage() {
       )}
 
       {/* Filters */}
-      <Card>
+      <Card className="flex justify-between">
         <CardContent className="p-6">
           <AgentFiltersComponent
             filters={filters}
             onFiltersChange={handleFiltersChange}
             sourceChannels={sourceChannels}
           />
+        </CardContent>
+        <CardContent className="flex p-4" > 
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm">
+              <Upload className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Agent
+            </Button>
+
+            <CreateAgentDialog
+              open={createDialogOpen}
+              onOpenChange={setCreateDialogOpen}
+              onAgentCreated={handleAgentCreated}
+            />
+
+          </div>
         </CardContent>
       </Card>
 
